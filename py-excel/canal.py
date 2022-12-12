@@ -11,7 +11,7 @@ def showSql(x):
     # print(x['JobType'],x['TableName'],x['Sql'],sep=',')
     jobType = x['JobType']
     tbName = x['TableName']
-    groupId = 'ESCanalPush'
+    groupId = jobType
     if jobType == 'BigDataIntegrationPush':
         groupId = 'BigDataIntegrationPush'
     elif jobType == 'CDPUnionPush':
@@ -26,7 +26,7 @@ tb = pd.DataFrame(data=lists)
 # for x in tb:
 #     print(x)
 
-tb1 = tb.loc[(tb['JobType'] != 'OpenApiUnionPush'), [
+tb1 = tb.loc[(tb['JobType'] == 'OpenApiUnionPush'), [
     'JobType', 'TableName']]  # 过滤数据, 筛选字段
 tb1 = tb1.sort_values(by=['JobType'])  # 排序
 # print(tb1['JobType'].count())
