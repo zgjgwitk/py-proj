@@ -1,434 +1,155 @@
-        /// <summary>
-        /// 获取品牌的N倍积分活动
+ /// <summary>
+        /// 主键ID
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetNBonusActListResponseBusi> GetNBonusActList(GetNBonusActListRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetNBonusActList(request.BrandId, request.ActCategoryList);
-            return Task.FromResult(new GetNBonusActListResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        public int Id { get; set; }
 
         /// <summary>
-        /// 清空N倍积分活动中的无效的商品
+        /// 集团ID
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<ClearNBonusProSkuResponseBusi> ClearNBonusProSku(ClearNBonusProSkuRequestBusi request, Dictionary<string, string> context)
-        {
-            CrmActSaleOrderActProductBll.ClearNBonusProSku(request.BrandId);
-            return Task.FromResult(new ClearNBonusProSkuResponseBusi()
-            {
-                Result = true
-            });
-        }
+        public int CopId { get; set; }
 
         /// <summary>
-        /// 根据活动内容Ids 获取活动内容
+        /// 品牌ID
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActProductByContentIdsResponseBusi> GetActProductByContentIds(GetActProductByContentIdsRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActProductBll.GetListByContentIds(request.BrandId, request.ContentId);
-            return Task.FromResult(new GetActProductByContentIdsResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActProductInfoBusi>(),
-            });
-        }
+        public int BrandId { get; set; }
 
         /// <summary>
-        /// 获取数据列表-带分页
+        /// 会员ID
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActProductListPageResponseBusi> GetActProductListPage(GetActProductListPageRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActProductBll.GetListPage(request.Info.CopyTo<CrmActSaleOrderActProductDomain>(), request.PageIndex, request.PageSize);
-            return Task.FromResult(new GetActProductListPageResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActProductInfoBusi>(),
-            });
-        }
+        public long VipId { get; set; }
 
         /// <summary>
-        /// 获取数据列表
+        /// 服务门店ID
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActProductListResponseBusi> GetActProductList(GetActProductListRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActProductBll.GetList(request.Info.CopyTo<CrmActSaleOrderActProductDomain>());
-            return Task.FromResult(new GetActProductListResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActProductInfoBusi>(),
-            });
-        }
+        public int ServiceChannel { get; set; }
 
         /// <summary>
-        /// 批量写入N倍积分商品,自动生成Id
+        /// 名单类型 0白名单 1消费黑名单 2积分黑名单
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<InsertActProductsResponseBusi> InsertActProducts(InsertActProductsRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActProductBll.InsertActProducts(request.BrandId, request.List.CopyListTo<CrmActSaleOrderActProductInfo>());
-            return Task.FromResult(new InsertActProductsResponseBusi()
-            {
-                Data = result,
-            });
-        }
+        public int SpecialType { get; set; }
 
         /// <summary>
-        /// 
+        /// 规则ID
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<UpdateNBonusProSkuResponseBusi> UpdateNBonusProSku(UpdateNBonusProSkuRequestBusi request, Dictionary<string, string> context)
-        {
-            CrmActSaleOrderActProductBll.UpdateNBonusProSku(request.BrandId,
-                request.Insert.CopyListTo<CrmActSaleOrderActProductInfo>(),
-                request.Delete.CopyListTo<CrmActSaleOrderActProductInfo>()
-                );
-            return Task.FromResult(new UpdateNBonusProSkuResponseBusi()
-            {
-                Result = true
-            });
-        }
+        public string RuleIds { get; set; }
 
         /// <summary>
-        /// 保存sku或是货号  覆盖式导入
+        /// 创建人ID
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<AddNBonusActProductDataResponseBusi> AddNBonusActProductData(AddNBonusActProductDataRequestBusi request, Dictionary<string, string> context)
-        {
-            CrmActSaleOrderActProductBll.AddNBonusActProductData(request.CopId, request.BrandId, request.ActCondId, request.ContentId, request.ActId, request.ProType, request.SkuList
-                );
-            return Task.FromResult(new AddNBonusActProductDataResponseBusi()
-            {
-                IsSuccess = true,
-                RespCode = 200,
-                RespMsg = "",
-            });
-        }
+        public int CreateUserId { get; set; }
 
         /// <summary>
-        /// 单个删除活动商品
+        /// 创建人
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<DeleteByProductNoResponseBusi> DeleteByProductNo(DeleteByProductNoRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActProductBll.DeleteByProductNo(request.BrandId, request.ActId, request.ActProdId);
-            return Task.FromResult(new DeleteByProductNoResponseBusi()
-            {
-                IsSuccess = result.result,
-                RespMsg = result.msg,
-            });
-        }
+        [EncryptPropAttrbute(EncryptPropEnum.UserName)]
+        public string CreateUser { get; set; }
 
         /// <summary>
-        /// 取未过期的 且订单时间在活动时间范围内的活动
+        /// 创建时间
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActivitesListValidResponseBusi> GetActivitesListValid(GetActivitesListValidRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetActivitesListValid(request.BrandId, request.MinDate, request.MaxDate);
-            return Task.FromResult(new GetActivitesListValidResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        public DateTime CreateDate { get; set; }
 
         /// <summary>
-        /// 取未过期的 且订单时间在活动时间范围内的活动
+        /// 最后修改人ID
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActGiveActListValidResponseBusi> GetActGiveActListValid(GetActGiveActListValidRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetActGiveActListValid(request.BrandId, request.MinDate, request.MaxDate);
-            return Task.FromResult(new GetActGiveActListValidResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        public int LastModifiedUserId { get; set; }
 
         /// <summary>
-        /// 订单积分计算-获取新活动
+        /// 最后修改人
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetBonusCalcDataActListValidResponseBusi> GetBonusCalcDataActListValid(GetBonusCalcDataActListValidRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetBonusCalcDataActListValid(request.BrandId, request.MinDate, request.MaxDate);
-            return Task.FromResult(new GetBonusCalcDataActListValidResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        [EncryptPropAttrbute(EncryptPropEnum.UserName)]
+        public string LastModifiedUser { get; set; }
 
         /// <summary>
-        /// 获取进行中或者结束时间不超过30天的累计消费赠礼(非购百)活动
+        /// 最后修改时间
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetOrderActListResponseBusi> GetOrderActList(GetOrderActListRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetOrderActList(request.BrandId, request.ActGroups);
-            return Task.FromResult(new GetOrderActListResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        public DateTime LastModifiedDate { get; set; }
 
         /// <summary>
-        /// 获取进行中的累计消费赠礼活动
+        /// 名单名称
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetExecutingOrderActListResponseBusi> GetExecutingOrderActList(GetExecutingOrderActListRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetExecutingOrderActList(request.BrandId, request.ActGroups);
-            return Task.FromResult(new GetExecutingOrderActListResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        [Ignore]
+        public string SpecialTypeName { get; set; }
 
         /// <summary>
-        /// 删除该活动
+        /// 线上卡号
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<DeleteActivityResponseBusi> DeleteActivity(DeleteActivityRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.DeleteActivity(request.ActId, request.BrandId, request.SummaryId);
-            return Task.FromResult(new DeleteActivityResponseBusi()
-            {
-                Data = result,
-            });
-        }
+        [Ignore]
+        [EncryptPropAttrbute(EncryptPropEnum.VipCode)]
+        public string Code { get; set; }
 
         /// <summary>
-        /// 获取所有活动列表
+        /// 线下卡号
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetOrderActInfoByDomainResponseBusi> GetOrderActInfoByDomain(GetOrderActInfoByDomainRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetOrderActInfoList(request.Info.CopyTo<CrmActSaleOrderActDomain>());
-            return Task.FromResult(new GetOrderActInfoByDomainResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        [Ignore]
+        [EncryptPropAttrbute(EncryptPropEnum.VipOldCode)]
+        public string OldCode { get; set; }
 
         /// <summary>
-        /// 获取所有活动列表-App端
+        /// 线下卡号
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetOrderActInfoAppByDomainResponseBusi> GetOrderActInfoAppByDomain(GetOrderActInfoAppByDomainRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetOrderActInfoListApp(request.Info.CopyTo<CrmActSaleOrderActDomain>());
-            return Task.FromResult(new GetOrderActInfoAppByDomainResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        [Ignore]
+        [EncryptPropAttrbute(EncryptPropEnum.VipMobile)]
+        public string MobileNo { get; set; }
 
         /// <summary>
-        /// C端个人中心获取配置得累计消费赠礼活动信息
+        /// 名称
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetOrderActPromotionResponseBusi> GetOrderActPromotion(GetOrderActPromotionRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = ActSaleVipOrderActBll.GetOrderActPromotion(request.BrandId, request.ActId, request.VipId);
-            return Task.FromResult(new GetOrderActPromotionResponseBusi()
-            {
-                Result = result.Res.Success,
-                StatusCode = result.Res.Status,
-                Msg = result.Res.Msg,
-                Data = result.Data.CopyTo<OrderActPromotionResponseBusi>(),
-            });
-        }
+        [Ignore]
+        [EncryptPropAttrbute(EncryptPropEnum.VipName)]
+        public string Name { get; set; }
 
         /// <summary>
-        /// 根据主键获取活动详情
+        /// 服务门店编码
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActSaleOrderActInfoResponseBusi> GetActSaleOrderActInfo(GetActSaleOrderActInfoRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetActSaleOrderActInfo(request.BrandId, request.ActId);
-            return Task.FromResult(new GetActSaleOrderActInfoResponseBusi()
-            {
-                Data = result.CopyTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        [Ignore]
+        public string ServiceChannelCode { get; set; }
 
         /// <summary>
-        /// 仅更新活动状态
+        /// 服务门店名称
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<UpdateActStatusOnlyResponseBusi> UpdateActStatusOnly(UpdateActStatusOnlyRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.UpdateActStatus(request.ActId, request.BrandId, request.LogInfo.CopyTo<CrmActOperateLogInfo>(), request.ActStatus, request.SummaryId);
-            return Task.FromResult(new UpdateActStatusOnlyResponseBusi()
-            {
-                Data = result,
-            });
-        }
+        [Ignore]
+        public string ServiceChannelName { get; set; }
 
         /// <summary>
-        /// 更新活动状态字段
+        /// 服务导购名称
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<UpdateActStatusFieldResponseBusi> UpdateActStatusField(UpdateActStatusFieldRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.UpdateActStatusField(request.ActId, request.BrandId, request.ActStatus, request.LastModifiedDate, request.LastModifiedUser);
-            return Task.FromResult(new UpdateActStatusFieldResponseBusi()
-            {
-                Data = result.CopyTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        [Ignore]
+        [EncryptPropAttrbute(EncryptPropEnum.UserName)]
+        public string ServiceSalerName { get; set; }
 
         /// <summary>
-        /// 根据品牌ID判断是否存在新N倍活动
+        /// 服务导购编码
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetIsHadNewActResponseBusi> GetIsHadNewAct(GetIsHadNewActRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.IsHadNewAct(request.BrandId);
-            return Task.FromResult(new GetIsHadNewActResponseBusi()
-            {
-                Data = result,
-            });
-        }
+        [Ignore]
+        public string ServiceSalerCode { get; set; }
 
         /// <summary>
-        /// 根据订单状态获取列表
+        /// 批量导入操作类型
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActivitesListByStatusResponseBusi> GetActivitesListByStatus(GetActivitesListByStatusRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActBll.GetActivitesListByStatus(request.BrandId, request.ApprovalUser, request.ActName, request.ActType, request.StatusList);
-            return Task.FromResult(new GetActivitesListByStatusResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        [Ignore]
+        public string OperateType { get; set; }
 
         /// <summary>
-        /// 获取活动信息
+        /// 导入错误原因
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetCachedActivityByActIdResponseBusi> GetCachedActivityByActId(GetCachedActivityByActIdRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActReceiveBll.GetCachedActivityByActId(request.BrandId, request.ActId);
-            return Task.FromResult(new GetCachedActivityByActIdResponseBusi()
-            {
-                Data = result.CopyTo<CrmActSaleOrderActInfoBusi>(),
-            });
-        }
+        [Ignore]
+        public string ErrorMsg { get; set; }
 
         /// <summary>
-        /// 根据CondId获取券/券包
+        /// 是否有权限
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetGiftdtlsByActCondIdResponseBusi> GetGiftdtlsByActCondId(GetGiftdtlsByActCondIdRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActGiftdtlsBll.GetListByActCondId(request.BrandId, request.ActId, request.ActCondId);
-            return Task.FromResult(new GetGiftdtlsByActCondIdResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActGiftdtlsInfoBusi>(),
-            });
-        }
+        [Ignore]
+        public bool IsAdjustment { get; set; }
 
         /// <summary>
-        /// 获取活动券包明细数据列表
+        /// 入库手机号
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActGiftdtlsResponseBusi> GetActGiftdtls(GetActGiftdtlsRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActGiftdtlsBll.GetList(request.Info.copyTo<CrmActSaleOrderActGiftdtlsDomain>());
-            return Task.FromResult(new GetActGiftdtlsResponseBusi()
-            {
-                Data = result.CopyListTo<CrmActSaleOrderActGiftdtlsInfoBusi>(),
-            });
-        }
+        [Ignore]
+        public string DbMobileNo { get; set; }
 
         /// <summary>
-        /// 奖励领取-数据保存
+        /// 是否新增
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<SaveExecuteActReceiveResponseBusi> SaveExecuteActReceive(SaveExecuteActReceiveRequestBusi request, Dictionary<string, string> context)
-        {
-            CrmActSaleOrderActReceiveBll.ExecuteReceive(request.BrandId, request.CopId,
-                request.ActLogId, request.ActLogVersion, request.ActLogConsJson, request.ConditionId, request.ConditionSendCount,
-                request.Record.CopyTo<CrmActSaleGiveGetsInfo>(),
-                request.SummaryId, request.SummaryCouponCount, request.SummaryGiftBagCount, request.SummaryActParticipants, request.SummaryBonusNumber,
-                request.SendCouponRequestJson, request.SendCouponGiftRequestJson, request.BonusHelperJson
-            );
-            return Task.FromResult(new SaveExecuteActReceiveResponseBusi()
-            {
-                Result = true
-            });
-        }
-
-        /// <summary>
-        /// 获取营销活动(累计消费赠礼)订单记录
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<GetActSaleOrderActLogResponseBusi> GetActSaleOrderActLog(GetActSaleOrderActLogRequestBusi request, Dictionary<string, string> context)
-        {
-            var result = CrmActSaleOrderActLogBll.GetActSaleLog(request.BrandId, request.VipId, request.ActId);
-            return Task.FromResult(new GetActSaleOrderActLogResponseBusi()
-            {
-                Data = result.CopyTo<CrmActSaleOrderActLogInfoBusi>(),
-            });
-        }
+        [Ignore]
+        public bool IsAdd { get; set; }
