@@ -21,7 +21,7 @@ def cleanText(str):
 
     for line in arr:
         newLine = line.strip()
-        if (newLine.find('public ')==0) or (newLine.find('/// ')==0 and newLine != '/// <summary>' and newLine != '/// </summary>' and newLine != '' and newLine.find('/// <returns>')==-1 and newLine.find('/// </returns>')==-1 and newLine.find('/// <param')==-1 and newLine.find('/// </param')==-1):
+        if (newLine.find('public ')==0) or (newLine.find('/// ')==0 and newLine != '/// <summary>' and newLine != '/// </summary>' and newLine != '' and newLine.find('/// <returns>')==-1 and newLine.find('/// </returns>')==-1 and newLine.find('/// <param')==-1 and newLine.find('/// </param')==-1 and newLine.find('#')==-1 and newLine.find('{')==-1 and newLine.find('}')==-1):
             newLine=newLine.replace('///','//')
             newArr.append(newLine)
             #print(newLine)
@@ -30,26 +30,41 @@ def cleanText(str):
 
 # 拼字段    
 def loadField(prop, desc):
-    regexRule = r'public Task<(\w+)> (\w+)\s*\(\n?(\w+) request'
+    regexRule = r'public (async)? Task<(\w+)> (\w+)\s*\(\n?(\w+) request'
     pattern = re.compile(regexRule)
     mathcs = pattern.findall(prop)
+    msgClassString = ''
     for func in mathcs:
-        req = re.sub(r'Busi$','',func[2])
-        resp = re.sub(r'Busi$','',func[0])
-        print('rpc {_name}({_req}) returns ({_resp}) {{}}//{_desc}'.format(_name=func[1], _req=req, _resp=resp, _desc=desc))
+        req = re.sub(r'Busi$','',func[3])
+        resp = re.sub(r'Busi$','',func[1])
+        print('rpc {_name}({_req}) returns ({_resp}) {{}}//{_desc}'.format(_name=func[2], _req=req, _resp=resp, _desc=desc))
+        
+        msgClassString += '//{_desc}-请求实体\n'.format(_desc=desc)
+        msgClassString += 'message {_req} {{\n}}\n'.format(_req=req)
+        msgClassString += '//{_desc}-响应实体\n'.format(_desc=desc)
+        msgClassString += 'message {_resp} {{\n'.format(_resp=resp)
+        msgClassString += '    bool IsError=1;// 是否错误\n'
+        msgClassString += '    int32 ErrorCode=2;// 错误编码\n'
+        msgClassString += '    string ErrorMsg=3;// 错误信息\n'
+        msgClassString += '}\n'
+    
+    return msgClassString + '\n'
 
 # 主方法
 def printFile():
     text = loadFileString()
     arrLines = cleanText(text)
     desc = ''
+    allmsgClass = ''
     for line in arrLines:
         if line.startswith('//'):
             desc += line.replace('//', '')
             continue
         
-        prop = loadField(line, desc)
+        allmsgClass += loadField(line, desc)
         desc = ''
+    print('\n')
+    print(allmsgClass)
 
 if __name__ == '__main__':
     printFile()

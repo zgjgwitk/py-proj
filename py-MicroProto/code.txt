@@ -1,155 +1,106 @@
- /// <summary>
-        /// 主键ID
+        /// <summary>
+        /// 编号
         /// </summary>
         public int Id { get; set; }
-
         /// <summary>
-        /// 集团ID
+        /// 所属集团
         /// </summary>
         public int CopId { get; set; }
-
         /// <summary>
-        /// 品牌ID
+        /// 所属品牌
         /// </summary>
         public int BrandId { get; set; }
-
         /// <summary>
-        /// 会员ID
+        /// 会员签到活动ID
         /// </summary>
-        public long VipId { get; set; }
-
+        public int ActId { get; set; }
         /// <summary>
-        /// 服务门店ID
+        /// 会员签到活动领取连续奖励达成天数
         /// </summary>
-        public int ServiceChannel { get; set; }
-
+        public int Step { get; set; }
         /// <summary>
-        /// 名单类型 0白名单 1消费黑名单 2积分黑名单
+        /// 会员签到活动连续奖励名称
         /// </summary>
-        public int SpecialType { get; set; }
-
+        public string StepName { get; set; }
         /// <summary>
-        /// 规则ID
+        /// 活动前端显示的连续奖励图标
         /// </summary>
-        public string RuleIds { get; set; }
-
+        public string StepIcon { get; set; }
         /// <summary>
-        /// 创建人ID
+        /// 连续奖励是否为积分
         /// </summary>
-        public int CreateUserId { get; set; }
-
+        public bool IsGiveBonus { get; set; }
+        /// <summary>
+        /// 连续奖励是否为优惠券
+        /// </summary>
+        public bool IsGiveCoupon { get; set; }
+        /// <summary>
+        /// 连续奖励是否为券包
+        /// </summary>
+        public bool IsGiveGift { get; set; }
+        /// <summary>
+        /// 积分值（赠送积分才有）
+        /// </summary>
+        public int BonusValue { get; set; }
+        /// <summary>
+        /// 所属券库(送券才有)
+        /// </summary>
+        public int CouponGrpId { get; set; }
+        /// <summary>
+        /// 优惠券名称
+        /// </summary>
+        public string CouponName { get; set; }
+        /// <summary>
+        /// 券有效期类型（CM：自领取日起多少天有效，TS：固定时间段内有效）
+        /// </summary>
+        public string CouponValidType { get; set; }
+        /// <summary>
+        /// 券有效期天数(只有送券才有)
+        /// </summary>
+        public int CouponValidDays { get; set; }
+        /// <summary>
+        /// 券有效期开始时间
+        /// </summary>
+        public DateTime? CouponValidStartTime { get; set; }
+        /// <summary>
+        /// 券有效期结束时间
+        /// </summary>
+        public DateTime? CouponValidEndTime { get; set; }
+        /// <summary>
+        /// 使用说明
+        /// </summary>
+        public string CouponGuide { get; set; }
+        /// <summary>
+        /// 券包所属券库(送券包才有)
+        /// </summary>
+        public int CouponGiftGrpId { get; set; }
+        /// <summary>
+        /// 券包名称(送券包才有)
+        /// </summary>
+        public string CouponGiftName { get; set; }
         /// <summary>
         /// 创建人
         /// </summary>
-        [EncryptPropAttrbute(EncryptPropEnum.UserName)]
         public string CreateUser { get; set; }
-
         /// <summary>
         /// 创建时间
         /// </summary>
         public DateTime CreateDate { get; set; }
-
-        /// <summary>
-        /// 最后修改人ID
-        /// </summary>
-        public int LastModifiedUserId { get; set; }
-
         /// <summary>
         /// 最后修改人
         /// </summary>
-        [EncryptPropAttrbute(EncryptPropEnum.UserName)]
         public string LastModifiedUser { get; set; }
+        /// <summary>
+        /// 最后更新时间
+        /// </summary>
+        public DateTime? LastModifiedDate { get; set; }
 
         /// <summary>
-        /// 最后修改时间
+        /// 规则id
         /// </summary>
-        public DateTime LastModifiedDate { get; set; }
+        public int RuleId { get; set; }
 
         /// <summary>
-        /// 名单名称
+        /// 相同奖品序号
         /// </summary>
-        [Ignore]
-        public string SpecialTypeName { get; set; }
-
-        /// <summary>
-        /// 线上卡号
-        /// </summary>
-        [Ignore]
-        [EncryptPropAttrbute(EncryptPropEnum.VipCode)]
-        public string Code { get; set; }
-
-        /// <summary>
-        /// 线下卡号
-        /// </summary>
-        [Ignore]
-        [EncryptPropAttrbute(EncryptPropEnum.VipOldCode)]
-        public string OldCode { get; set; }
-
-        /// <summary>
-        /// 线下卡号
-        /// </summary>
-        [Ignore]
-        [EncryptPropAttrbute(EncryptPropEnum.VipMobile)]
-        public string MobileNo { get; set; }
-
-        /// <summary>
-        /// 名称
-        /// </summary>
-        [Ignore]
-        [EncryptPropAttrbute(EncryptPropEnum.VipName)]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// 服务门店编码
-        /// </summary>
-        [Ignore]
-        public string ServiceChannelCode { get; set; }
-
-        /// <summary>
-        /// 服务门店名称
-        /// </summary>
-        [Ignore]
-        public string ServiceChannelName { get; set; }
-
-        /// <summary>
-        /// 服务导购名称
-        /// </summary>
-        [Ignore]
-        [EncryptPropAttrbute(EncryptPropEnum.UserName)]
-        public string ServiceSalerName { get; set; }
-
-        /// <summary>
-        /// 服务导购编码
-        /// </summary>
-        [Ignore]
-        public string ServiceSalerCode { get; set; }
-
-        /// <summary>
-        /// 批量导入操作类型
-        /// </summary>
-        [Ignore]
-        public string OperateType { get; set; }
-
-        /// <summary>
-        /// 导入错误原因
-        /// </summary>
-        [Ignore]
-        public string ErrorMsg { get; set; }
-
-        /// <summary>
-        /// 是否有权限
-        /// </summary>
-        [Ignore]
-        public bool IsAdjustment { get; set; }
-
-        /// <summary>
-        /// 入库手机号
-        /// </summary>
-        [Ignore]
-        public string DbMobileNo { get; set; }
-
-        /// <summary>
-        /// 是否新增
-        /// </summary>
-        [Ignore]
-        public bool IsAdd { get; set; }
+        public int SamePrize { get; set; }

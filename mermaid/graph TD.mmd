@@ -1,0 +1,12 @@
+graph TD
+    A[kos-admin推送'预检'任务] --> B[ec-process接收任务]
+    B --> C[任务落库]
+    C --> D[推送任务到MQ]
+    D --> E[ec-process消费MQ]
+    E --> F[HTTP GET请求任务URL]
+    F --> G[解析返回数据]
+    G --> H[调用kos-admin接口返回结果]
+    
+    %% 添加样式增强可读性
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#bbf,stroke:#333,stroke-width:2px
