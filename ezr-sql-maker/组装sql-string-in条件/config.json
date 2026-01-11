@@ -1,0 +1,7 @@
+{
+  "output_format": "json_array",
+  "json_chunk_size": 800000,
+  "json_chunk_spacing_lines": 5,
+  "input_file": "ezr-sql-maker/组装sql-string-in条件/input.txt",
+  "output_file": "ezr-sql-maker/组装sql-string-in条件/output.txt"
+}

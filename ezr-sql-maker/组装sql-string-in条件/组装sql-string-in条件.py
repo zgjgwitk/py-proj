@@ -1,105 +1,128 @@
-"""
-SQL IN条件格式化工具
-从input.txt读取数据，输出到output.txt
-
-输入格式：每行一个字符串
-输出格式：SQL IN子句格式，每个值用单引号包围并换行显示
-"""
-
 import os
+import json
+import logging
+from typing import List, Optional, Dict, Any
 
-_is_use_double_quote = False
+# output_format: [sql_in, json_array]
 
-def format_sql_in_condition(data_list):
-    """
-    将字符串列表格式化为SQL IN子句格式
-    
-    Args:
-        data_list (list): 字符串列表
-        
-    Returns:
-        str: 格式化后的SQL IN条件字符串
-    """
-    if not isinstance(data_list, list):
-        raise TypeError("输入必须是列表类型")
-    
-    # 为每个元素添加引号并用逗号分隔
-    if _is_use_double_quote:
-        formatted_items = [f'"{item}"' for item in data_list]
-    else:
-        formatted_items = [f"'{item}'" for item in data_list]
-    formatted_items = [f"'{item}'" for item in data_list]
-    return ',\n '.join(formatted_items)
+class FormatterConfig:
+    def __init__(
+        self,
+        output_format: str = "sql_in",
+        json_chunk_size: Optional[int] = None,
+        json_chunk_spacing_lines: int = 5,
+        input_file: str = "ezr-sql-maker/组装sql-string-in条件/input.txt",
+        output_file: str = "ezr-sql-maker/组装sql-string-in条件/output.txt",
+    ):
+        self.output_format = output_format
+        self.json_chunk_size = json_chunk_size
+        self.json_chunk_spacing_lines = json_chunk_spacing_lines
+        self.input_file = input_file
+        self.output_file = output_file
 
-def read_input_file(filename="input.txt"):
-    """
-    从文件读取输入数据
-    
-    Args:
-        filename (str): 输入文件名
-        
-    Returns:
-        list: 字符串列表
-    """
-    print(f"查看当前目录: {os.path.dirname(os.path.abspath(__file__))}")
-    if not os.path.exists(filename):
-        raise FileNotFoundError(f"输入文件 {filename} 不存在")
-    
-    with open(filename, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    
-    # 过滤掉空行和只包含空白字符的行
-    return [line.strip() for line in lines if line.strip()]
+    @staticmethod
+    def load(config_path: str) -> "FormatterConfig":
+        if not os.path.exists(config_path):
+            return FormatterConfig()
+        with open(config_path, "r", encoding="utf-8") as f:
+            data: Dict[str, Any] = json.load(f)
+        output_format = str(data.get("output_format", "sql_in")).strip()
+        json_chunk_size_raw = data.get("json_chunk_size", None)
+        json_chunk_size = None
+        if isinstance(json_chunk_size_raw, int):
+            if json_chunk_size_raw > 0:
+                json_chunk_size = json_chunk_size_raw
+        spacing_raw = data.get("json_chunk_spacing_lines", 5)
+        spacing_lines = 5
+        if isinstance(spacing_raw, int) and spacing_raw > 0:
+            spacing_lines = spacing_raw
+        input_file = str(data.get("input_file", "ezr-sql-maker/组装sql-string-in条件/input.txt")).strip()
+        output_file = str(data.get("output_file", "ezr-sql-maker/组装sql-string-in条件/output.txt")).strip()
+        return FormatterConfig(output_format, json_chunk_size, spacing_lines, input_file, output_file)
 
-def write_output_file(content, filename="output.txt"):
-    """
-    将内容写入输出文件
-    
-    Args:
-        content (str): 要写入的内容
-        filename (str): 输出文件名
-    """
-    with open(filename, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"结果已保存到 {filename}")
+
+class SqlStringInAssembler:
+    def __init__(self, config: FormatterConfig, logger: Optional[logging.Logger] = None):
+        self.config = config
+        self.logger = logger or logging.getLogger("SqlStringInAssembler")
+
+    def read_input(self, filename: str) -> List[str]:
+        self.logger.info("读取输入文件: %s", filename)
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"输入文件 {filename} 不存在")
+        with open(filename, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        items = [line.strip() for line in lines if isinstance(line, str) and line.strip()]
+        self.logger.info("读取到有效行数: %d", len(items))
+        return items
+
+    def write_output(self, content: str, filename: str) -> None:
+        self.logger.info("写入输出文件: %s", filename)
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(content)
+        self.logger.info("输出完成: %s", filename)
+
+    def format_sql_in(self, data_list: List[str]) -> str:
+        if not isinstance(data_list, list):
+            raise TypeError("输入必须是列表类型")
+        safe_items = [("'" + str(item).replace("'", "''") + "'") for item in data_list]
+        return ",\n".join(safe_items)
+
+    def _chunk(self, data_list: List[str], size: int) -> List[List[str]]:
+        if size <= 0:
+            return [data_list]
+        chunks: List[List[str]] = []
+        start = 0
+        total = len(data_list)
+        while start < total:
+            end = start + size
+            chunks.append(data_list[start:end])
+            start = end
+        return chunks
+
+    def format_json_arrays(self, data_list: List[str], chunk_size: Optional[int]) -> str:
+        if chunk_size is None or chunk_size <= 0:
+            return json.dumps([str(x) for x in data_list], ensure_ascii=False, indent=2)
+        arrays = self._chunk([str(x) for x in data_list], chunk_size)
+        serialized = [json.dumps(arr, ensure_ascii=False, indent=2) for arr in arrays]
+        sep = "\n" * (self.config.json_chunk_spacing_lines + 1)
+        return sep.join(serialized)
+
+    def run(self) -> None:
+        mode = self.config.output_format
+        if mode not in ("sql_in", "json_array"):
+            raise ValueError("output_format 配置只支持 'sql_in' 或 'json_array'")
+        items = self.read_input(self.config.input_file)
+        if len(items) == 0:
+            self.logger.warning("输入为空，无需输出")
+            return
+        if mode == "sql_in":
+            content = self.format_sql_in(items)
+        else:
+            content = self.format_json_arrays(items, self.config.json_chunk_size)
+        self.write_output(content, self.config.output_file)
+
+
+def _setup_logger() -> logging.Logger:
+    logger = logging.getLogger("SqlStringInAssembler")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    return logger
+
 
 def main():
-    """主函数"""
-    input_file = "ezr-sql-maker/组装sql-string-in条件/input.txt"
-    output_file = "ezr-sql-maker/组装sql-string-in条件/output.txt"
-    
-    print("=" * 60)
-    print("SQL IN条件格式化工具")
-    print("=" * 60)
-    
-    try:
-        # 从文件读取数据
-        input_data = read_input_file(input_file)
-        
-        if not input_data:
-            print("警告: 输入文件为空")
-            return
-            
-        print(f"从 {input_file} 读取到 {len(input_data)} 行数据:")
-        # for i, item in enumerate(input_data, 1):
-        #     print(f"  {i}. {item}")
-        
-        # 格式化为SQL IN条件
-        result = format_sql_in_condition(input_data)
-        
-        print("\n格式化后的SQL IN条件:")
-        # print(result)
-        
-        # 写入输出文件
-        write_output_file(result, output_file)
-        
-        print(f"\n处理完成！")
-        
-    except FileNotFoundError as e:
-        print(f"错误: {e}")
-        print("请确保在当前目录下有 input.txt 文件")
-    except Exception as e:
-        print(f"处理过程中发生错误: {e}")
+    logger = _setup_logger()
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(base_dir, "config.json")
+    logger.info("载入配置: %s", config_path)
+    config = FormatterConfig.load(config_path)
+    assembler = SqlStringInAssembler(config, logger)
+    assembler.run()
+
 
 if __name__ == "__main__":
     main()

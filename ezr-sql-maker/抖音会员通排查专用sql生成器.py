@@ -5,14 +5,15 @@ import re
 # ==========================================
 # 1. 参数配置 (在这里修改查询条件)
 # ==========================================
-'''
+''' 此为基础参数模板
 {
-    "BrandId": 429,
+    "BrandId": 63,
     "MobileNo": "",
     "OpenId": "",
     "SaleNo": "",
     "VipId": 0,
-    "OldVipId": 0
+    "OldVipId": 0,
+    "OldCode": ""
 }
 # OldVipId 查询掩码会员信息
 # VipId 和 OldVipId 同时有值, 会生成 `crm_vip_info_bindold`: VipId=1 AND OldVipId=2
@@ -20,40 +21,65 @@ import re
 '''
 PARAMS_JSON = """
 {
-    "BrandId": 429,
+    "BrandId": 5882,
     "MobileNo": "",
     "OpenId": "",
-    "SaleNo": "",
-    "VipId": 4802076,
-    "OldVipId": 0
+    "SaleNo": "125022172501527",
+    "VipId": 6523781,
+    "OldVipId": 0,
+    "OldCode": ""
 }
 """
 
 # ==========================================
-# 1.5 分表策略配置 (BrandId -> Table -> Count)
+# 2. 分表策略配置 (BrandId -> Table -> Count)
 # ==========================================
 # 针对特定 BrandId 定义分表数量，未定义的表默认 Count=1
 BRAND_SHARD_CONFIG = {
     63: {
         "crm_sal_vip_sale": 8,
-        "crm_vip_info": 8
+        "crm_vip_info": 8,
+        "crm_vip_info_consume": 8
+    },
+    311: {
+        "crm_sal_vip_sale": 4,
+        "crm_vip_info": 2,
+        "crm_vip_info_bindold": 2,
+        "crm_vip_info_consume": 2
+    },
+    5882: {
+        "crm_sal_vip_sale": 1,
+        "crm_vip_info": 1,
+        "crm_vip_info_bindold": 1,
+        "crm_vip_info_consume": 1
+    },
+    6964: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8
     }
 }
 
 # ==========================================
-# 2. 表结构配置 (在这里修改表和SQL模板)
+# 3. 表结构配置 (在这里修改表和SQL模板)
 # ==========================================
 TABLE_CONFIG_JSON = """
 [
     {
-        "Desc": "crm会员",
+        "Desc": ">> crm会员",
         "Table": "crm_vip_info",
         "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND MobileNo='{MobileNo}'"
     },
     {
-        "Desc": "crm会员",
+        "Desc": ">> crm会员",
         "Table": "crm_vip_info",
         "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND Id={VipId}"
+    },
+    {
+        "Desc": ">> crm会员",
+        "Table": "crm_vip_info",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND OldCode='{OldCode}'"
     },
     {
         "Desc": "crm券",
@@ -63,17 +89,22 @@ TABLE_CONFIG_JSON = """
     {
         "Desc": "第三方微信小程序授权信息",
         "Table": "crm_vip_info_third_party_wxapp",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId}"
+    },
+    {
+        "Desc": "第三方微信小程序授权信息",
+        "Table": "crm_vip_info_third_party_wxapp",
         "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND OpenId='{OpenId}'"
     },
     {
-        "Desc": "crm订单表",
+        "Desc": ">> crm订单表",
         "Table": "crm_sal_vip_sale",
         "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND SaleNo='{SaleNo}' AND DataOrigin=23"
     },
     {
-        "Desc": "crm订单表",
+        "Desc": ">> crm订单表",
         "Table": "crm_sal_vip_sale",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId = {VipId} AND DataOrigin=23"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId} AND DataOrigin=23"
     },
     {
         "Desc": "crm合卡记录",
@@ -88,22 +119,22 @@ TABLE_CONFIG_JSON = """
     {
         "Desc": "crm积分表",
         "Table": "crm_vip_info_bonus",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId = {VipId}"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId}"
     },
     {
-        "Desc": "根据抖音Open查询订单",
-        "Table": "mall_sales_oth_order",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND BuyerCode='{OpenId}'"
-    },
-    {
-        "Desc": "抖音订单",
-        "Table": "mall_sales_oth_order",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND Code='{SaleNo}'"
-    },
-    {
-        "Desc": "第三方平台会员绑定关系",
+        "Desc": ">> 第三方平台会员绑定关系",
         "Table": "crm_vip_info_third_party_bind",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND CustomerIdentity='{OpenId}'"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId} AND ThirdPartyId=10"
+    },
+    {
+        "Desc": ">> 第三方平台会员绑定关系",
+        "Table": "crm_vip_info_third_party_bind",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND CustomerIdentity='{OpenId}' AND ThirdPartyId=10"
+    },
+    {
+        "Desc": "全域会员通绑定/解绑记录表",
+        "Table": "crm_vip_info_third_party_bind_log",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId}"
     },
     {
         "Desc": "全域会员通绑定/解绑记录表",
@@ -111,19 +142,34 @@ TABLE_CONFIG_JSON = """
         "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND CustomerIdentity='{OpenId}'"
     },
     {
-        "Desc": "根据抖音OpenId查询掩码会员",
+        "Desc": ">> 根据抖音OpenId查询掩码会员",
         "Table": "crm_douyin_vip_openid",
         "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND OpenId='{OpenId}'"
     },
     {
-        "Desc": "查询掩码会员信息",
+        "Desc": ">> 查询掩码会员信息",
         "Table": "crm_douyin_vip_openid",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND FandsId={OldVipId}"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND FandsId={VipId}"
     },
     {
         "Desc": "抖音平台券",
         "Table": "crm_act_douyin_coupon_bind",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND CertificateId='{SaleNo}'"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId}"
+    },
+    {
+        "Desc": "crm会员消费习惯",
+        "Table": "crm_vip_info_consume",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND Id={VipId}"
+    },
+    {
+        "Desc": ">> 根据抖音Open查询订单",
+        "Table": "mall_sales_oth_order",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND DataOrigin=23 AND BuyerCode='{OpenId}'"
+    },
+    {
+        "Desc": ">> 抖音订单",
+        "Table": "mall_sales_oth_order",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND DataOrigin=23 AND Code='{SaleNo}'"
     }
 ]
 """
