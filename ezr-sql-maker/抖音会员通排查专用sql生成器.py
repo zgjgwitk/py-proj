@@ -21,11 +21,11 @@ import re
 '''
 PARAMS_JSON = """
 {
-    "BrandId": 5882,
+    "BrandId": 6919,
     "MobileNo": "",
     "OpenId": "",
-    "SaleNo": "125022172501527",
-    "VipId": 6523781,
+    "SaleNo": "",
+    "VipId": 37814667,
     "OldVipId": 0,
     "OldCode": ""
 }
@@ -47,11 +47,25 @@ BRAND_SHARD_CONFIG = {
         "crm_vip_info_bindold": 2,
         "crm_vip_info_consume": 2
     },
+    976:{
+    },
+    1752:{
+    },
     5882: {
-        "crm_sal_vip_sale": 1,
-        "crm_vip_info": 1,
-        "crm_vip_info_bindold": 1,
-        "crm_vip_info_consume": 1
+    },
+    6887: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bonus": 16
+    },
+    6919: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_grade_log": 8
     },
     6964: {
         "crm_sal_vip_sale": 16,
@@ -160,6 +174,11 @@ TABLE_CONFIG_JSON = """
         "Desc": "crm会员消费习惯",
         "Table": "crm_vip_info_consume",
         "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND Id={VipId}"
+    },
+    {
+        "Desc": "crm会员等级变更日志",
+        "Table": "crm_vip_info_grade_log",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId}"
     },
     {
         "Desc": ">> 根据抖音Open查询订单",
