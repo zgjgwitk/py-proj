@@ -21,11 +21,11 @@ import re
 '''
 PARAMS_JSON = """
 {
-    "BrandId": 6919,
+    "BrandId": 7095,
     "MobileNo": "",
     "OpenId": "",
     "SaleNo": "",
-    "VipId": 37814667,
+    "VipId": 0,
     "OldVipId": 0,
     "OldCode": ""
 }
@@ -67,11 +67,28 @@ BRAND_SHARD_CONFIG = {
         "crm_vip_info_consume": 8,
         "crm_vip_info_grade_log": 8
     },
+    6930: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bonus": 16
+    },
     6964: {
         "crm_sal_vip_sale": 16,
         "crm_vip_info": 8,
         "crm_vip_info_bindold": 8,
         "crm_vip_info_consume": 8
+    },
+    7008: {
+
+    },
+    7095: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bonus": 16
     }
 }
 

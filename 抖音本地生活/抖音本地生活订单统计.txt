@@ -1,0 +1,34 @@
+# 数据表结构
+CREATE TABLE `crm_act_douyin_coupon_order_dtl` (
+  `Id` bigint(20) NOT NULL,
+  `CopId` int(11) DEFAULT NULL COMMENT '集团',
+  `BrandId` int(11) DEFAULT NULL COMMENT '品牌',
+  `DouyinOrderId` varchar(255) DEFAULT NULL COMMENT '抖音购券订单编号',
+  `DouyinOrderTime` datetime DEFAULT NULL COMMENT '下单时间',
+  `DouyinOrderStatus` int(11) DEFAULT NULL COMMENT '订单状态（每天更新一次，已退款是终态不用再更新）',
+  `DouyinProductName` varchar(255) DEFAULT NULL COMMENT '抖音券商品名称',
+  `DouyinProductId` varchar(255) DEFAULT NULL COMMENT '抖音券商品ID',
+  `EzrStatus` int(11) DEFAULT NULL COMMENT 'EZR状态（0:待核销/1:已核销/2:已退款）',
+  `FulfilTime` datetime DEFAULT NULL COMMENT '核销时间（未核销时为NULL）',
+  `SmsScheduledTime` datetime DEFAULT NULL COMMENT '短信预计发送时间',
+  `SmsSendTime` datetime DEFAULT NULL COMMENT '发送短信时间（未发送或未匹配到会员时为NULL）',
+  `SmsSendStatus` int(11) DEFAULT NULL COMMENT '短信发送状态（-1：未知，0:未发送/1:已发送/2:不发送）',
+  `CouponExpireTime` datetime DEFAULT NULL COMMENT '券到期时间',
+  `OpenId` varchar(100) DEFAULT NULL COMMENT 'OpenId',
+  `MobileNo` varchar(20) DEFAULT NULL COMMENT '手机号',
+  `VipId` bigint(20) DEFAULT NULL COMMENT '会员id',
+  `CreateUserId` int(11) DEFAULT NULL COMMENT '创建人Id',
+  `CreateDate` datetime DEFAULT NULL COMMENT '创建日期',
+  `LastModifiedUserId` int(11) DEFAULT NULL COMMENT '最后修改人Id',
+  `LastModifiedDate` datetime DEFAULT NULL COMMENT '最后更新日期',
+  `DouyinLifeAccountId` varchar(100) DEFAULT NULL COMMENT '商家抖音来客品牌户 id',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `BrandId` (`BrandId`,`DouyinOrderId`),
+  KEY `crm_act_douyin_coupon_order_dtl_IX2` (`BrandId`,`DouyinOrderTime`,`EzrStatus`),
+  KEY `crm_act_douyin_coupon_order_dtl_IX1` (`BrandId`,`EzrStatus`,`SmsScheduledTime`,`SmsSendStatus`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='卖券订单明细表'
+
+# 基础SQL
+SELECT COUNT(*) 
+FROM `crm_act_douyin_coupon_order_dtl`
+WHERE (`BrandId` = 5973) AND (`EzrStatus` > -1) AND (`DouyinOrderTime` >= '2025-10-08 00:00:00') AND (`DouyinOrderTime` <= '2026-01-06 00:00:00')

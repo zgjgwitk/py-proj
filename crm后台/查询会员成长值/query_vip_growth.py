@@ -37,17 +37,8 @@ class VipGrowthQuery:
 
         # VIP ID列表
         self.vip_ids = [
-            1660000, 1666902, 2187791, 2719485, 3687732, 8669417, 11021264, 12295103,
-            14707518, 15734873, 33624738, 34357319, 35127964, 35166798, 36989743,
-            37476811, 37477707, 37477819, 37478953, 37481280, 37481335, 37483000,
-            37489053, 37489821, 37495415, 37504638, 37517770, 37517802, 37521767,
-            37524357, 37530382, 37533429, 37558995, 37562375, 37566042, 37573153,
-            37603210, 37609141, 37611459, 37625694, 37634984, 37643172, 37649287,
-            37652503, 37656168, 37656288, 37658311, 37661618, 37661812, 37662670,
-            37663100, 37678643, 37681205, 37693706, 37711727, 37720708, 37722025,
-            37725401, 37728247, 37750534, 37784646, 37788562, 37814667, 37851528,
-            37852268, 37852487, 37856324, 37857408, 37859679, 37890309, 37890799,
-            37903562, 37903771
+3188514,37484012,20171910,37495415,37520095,37562375
+
         ]
 
     def calculate_target_grade(self, buy_money_total: float) -> int:
@@ -98,13 +89,13 @@ class VipGrowthQuery:
             consume = data.get('Data', {}).get('Consume', {})
 
             current_grade_id = info.get('GradeId')
-            buy_money_total = consume.get('BuyMoneyTotal', 0.0)
+            buy_money_total = consume.get('GradeMoney', 0.0)
             target_grade_id = self.calculate_target_grade(buy_money_total)
 
             return {
                 'VipId': vip_id,
                 'CurrentGradeId': current_grade_id,
-                'BuyMoneyTotal': buy_money_total,
+                'GradeMoney': buy_money_total,
                 'TargetGradeId': target_grade_id
             }
 
@@ -134,7 +125,7 @@ class VipGrowthQuery:
 
             if vip_info:
                 results.append(vip_info)
-                print(f"  成功: 成长值={vip_info['BuyMoneyTotal']}, "
+                print(f"  成功: 成长值={vip_info['GradeMoney']}, "
                       f"当前等级={vip_info['CurrentGradeId']}, "
                       f"目标等级={vip_info['TargetGradeId']}")
 
@@ -160,7 +151,7 @@ class VipGrowthQuery:
         # 构建完整的输出路径
         output_path = os.path.join(self.output_dir, filename)
 
-        fieldnames = ['VipId', 'CurrentGradeId', 'BuyMoneyTotal', 'TargetGradeId']
+        fieldnames = ['VipId', 'CurrentGradeId', 'GradeMoney', 'TargetGradeId']
 
         try:
             with open(output_path, 'w', newline='', encoding='utf-8-sig') as csvfile:
