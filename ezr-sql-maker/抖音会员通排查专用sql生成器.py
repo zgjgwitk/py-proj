@@ -7,7 +7,7 @@ import re
 # ==========================================
 ''' 此为基础参数模板
 {
-    "BrandId": 63,
+    "BrandId": 6964,
     "MobileNo": "",
     "OpenId": "",
     "SaleNo": "",
@@ -21,11 +21,11 @@ import re
 '''
 PARAMS_JSON = """
 {
-    "BrandId": 7095,
+    "BrandId": 7135,
     "MobileNo": "",
     "OpenId": "",
     "SaleNo": "",
-    "VipId": 0,
+    "VipId": 1192004,
     "OldVipId": 0,
     "OldCode": ""
 }
@@ -47,7 +47,16 @@ BRAND_SHARD_CONFIG = {
         "crm_vip_info_bindold": 2,
         "crm_vip_info_consume": 2
     },
+    771: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 1,
+        "crm_vip_info_bindold": 1,
+        "crm_vip_info_consume": 1,
+        "crm_vip_info_bonus": 16
+    },
     976:{
+    },
+    1232:{
     },
     1752:{
     },
@@ -83,7 +92,38 @@ BRAND_SHARD_CONFIG = {
     7008: {
 
     },
+    7036: {
+
+    },
     7095: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bonus": 16
+    },
+    7117: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bonus": 16
+    },
+    7126: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bonus": 16
+    },
+    7135: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bonus": 16
+    },
+    7148: {
         "crm_sal_vip_sale": 16,
         "crm_vip_info": 8,
         "crm_vip_info_bindold": 8,

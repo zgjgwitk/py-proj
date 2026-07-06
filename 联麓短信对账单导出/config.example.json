@@ -1,0 +1,13 @@
+{
+  "es_url": "http://192.168.12.124:88/@qcloud:base.es.biz-172.21.65.197:9200/",
+  "index": "esmsgsms2605",
+  "output": "联麓对账单_esmsgsms2605.xlsx",
+  "sms_chan": 40,
+  "timeout": 60,
+  "verify_ssl": true,
+  "page_size": 1000,
+  "brand_ids": [],
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

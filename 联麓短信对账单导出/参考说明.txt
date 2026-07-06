@@ -1,0 +1,16 @@
+# 联麓短信对账单导出需求
+
+## 方案
+1. 查询短信es统计数据
+2. 将查出的数据处理
+3. 导出到excel
+4. 第 1 个 sheet 为“各品牌汇总”。
+5. 后续每个 sheet 为一个 `brandId + ezrAcc` 维度的品牌明细。
+
+## 入参
+1. 索引名称 SmsIndexName = esmsgsms2605
+2. 默认筛选条件 smsChan=40
+3. es_url = http://192.168.12.124:88/@qcloud:base.es.biz-172.21.65.197:9200/
+
+## es字段
+{ "serviceType": { "type": "keyword"},"ezrAcc": { "type": "keyword"},"chargeNum": { "type": "integer"},"resStatusCode": { "type": "keyword"},"typeKey": { "type": "keyword"},"origin": { "type": "keyword"},"smsChan": { "type": "short"},"execUser": { "type": "long"},"reqTime": { "type": "date"},"body": { "index": false,"type": "text"},"type": { "type": "keyword"},"resStatusMsg": { "type": "keyword"},"serialNo": { "type": "keyword"},"toUser": { "type": "long"},"replyTime": { "type": "date"},"reqTimeDay": { "type": "integer"},"resTime": { "type": "date"},"toClient": { "type": "keyword"},"brandId": { "type": "integer"},"typeValue": { "type": "keyword"},"id": { "type": "keyword"},"reply": { "type": "text"},"resStatus": { "type": "integer"},"gatewayId": { "type": "keyword"} }

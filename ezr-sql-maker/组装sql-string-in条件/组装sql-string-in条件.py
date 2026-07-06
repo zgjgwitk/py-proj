@@ -3,7 +3,7 @@ import json
 import logging
 from typing import List, Optional, Dict, Any
 
-# output_format: [sql_in, json_array]
+# output_format: [sql_in, json_array] // 修改 config.json 文件, 决定导出格式
 
 class FormatterConfig:
     def __init__(
