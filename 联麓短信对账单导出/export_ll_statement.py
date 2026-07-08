@@ -34,8 +34,10 @@ SERVICE_TYPE_MAP = {
 }
 
 SUCCESS_RES_STATUS = 3
-FAILED_RES_STATUS = [2, 4, 5]
+FAILED_RES_STATUS = [4, 5]
 UNKNOWN_RES_STATUS = 1
+EXCLUDE_TOTAL_RES_STATUS = 2
+EXCLUDE_FAILED_CHARGE_SERVICE_TYPES = {"1", "2"}
 
 
 @dataclass
@@ -161,6 +163,17 @@ def to_int(value: Any) -> int:
     return int(value)
 
 
+def adjusted_charge_nums(bucket: dict[str, Any], service_type: Any) -> tuple[int, int]:
+    total_charge_num = to_int(bucket.get("total_charge_num", {}).get("charge", {}).get("value"))
+    failed_charge_num = to_int(bucket.get("failed_charge_num", {}).get("charge", {}).get("value"))
+
+    if str(service_type).strip() in EXCLUDE_FAILED_CHARGE_SERVICE_TYPES:
+        total_charge_num -= failed_charge_num
+        failed_charge_num = 0
+
+    return total_charge_num, failed_charge_num
+
+
 def build_base_filters(config: Config) -> list[dict[str, Any]]:
     filters: list[dict[str, Any]] = [
         {"term": {"smsChan": config.sms_chan}},
@@ -174,7 +187,10 @@ def build_metric_aggs() -> dict[str, Any]:
     return {
         "min_req_time": {"min": {"field": "reqTime", "format": "yyyy-MM-dd HH:mm:ss"}},
         "max_req_time": {"max": {"field": "reqTime", "format": "yyyy-MM-dd HH:mm:ss"}},
-        "total_charge_num": {"sum": {"field": "chargeNum"}},
+        "total_charge_num": {
+            "filter": {"bool": {"must_not": [{"term": {"resStatus": EXCLUDE_TOTAL_RES_STATUS}}]}},
+            "aggs": {"charge": {"sum": {"field": "chargeNum"}}},
+        },
         "success_charge_num": {
             "filter": {"term": {"resStatus": SUCCESS_RES_STATUS}},
             "aggs": {"charge": {"sum": {"field": "chargeNum"}}},
@@ -257,17 +273,19 @@ def build_summary_rows(buckets: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for bucket in buckets:
         key = bucket.get("key", {})
+        service_type = key.get("serviceType")
+        total_charge_num, failed_charge_num = adjusted_charge_nums(bucket, service_type)
         rows.append(
             {
                 "品牌编号": to_int(key.get("brandId")),
                 "EZR账号": account_label(key.get("ezrAcc")),
-                "产品类型": service_type_label(key.get("serviceType")),
+                "产品类型": service_type_label(service_type),
                 "开始时间": bucket.get("min_req_time", {}).get("value_as_string", ""),
                 "结束时间": bucket.get("max_req_time", {}).get("value_as_string", ""),
                 "提交量": to_int(bucket.get("doc_count", 0)),
-                "总计费量": to_int(bucket.get("total_charge_num", {}).get("value")),
+                "总计费量": total_charge_num,
                 "成功计费量": to_int(bucket.get("success_charge_num", {}).get("charge", {}).get("value")),
-                "失败计费量": to_int(bucket.get("failed_charge_num", {}).get("charge", {}).get("value")),
+                "失败计费量": failed_charge_num,
                 "未知计费量": to_int(bucket.get("unknown_charge_num", {}).get("charge", {}).get("value")),
             }
         )
@@ -280,6 +298,8 @@ def build_detail_rows(buckets: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for bucket in buckets:
         key = bucket.get("key", {})
+        service_type = key.get("serviceType")
+        total_charge_num, failed_charge_num = adjusted_charge_nums(bucket, service_type)
         rows.append(
             {
                 "_brand_id": to_int(key.get("brandId")),
@@ -287,11 +307,11 @@ def build_detail_rows(buckets: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "品牌编号": to_int(key.get("brandId")),
                 "EZR账号": account_label(key.get("ezrAcc")),
                 "发送日期": to_int(key.get("reqTimeDay")),
-                "产品类型": service_type_label(key.get("serviceType")),
+                "产品类型": service_type_label(service_type),
                 "提交量": to_int(bucket.get("doc_count", 0)),
-                "总计费量": to_int(bucket.get("total_charge_num", {}).get("value")),
+                "总计费量": total_charge_num,
                 "成功计费量": to_int(bucket.get("success_charge_num", {}).get("charge", {}).get("value")),
-                "失败计费量": to_int(bucket.get("failed_charge_num", {}).get("charge", {}).get("value")),
+                "失败计费量": failed_charge_num,
                 "未知计费量": to_int(bucket.get("unknown_charge_num", {}).get("charge", {}).get("value")),
             }
         )
