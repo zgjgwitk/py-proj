@@ -15,6 +15,7 @@
 - '状态码' -> resStatusMsg
 """
 
+import csv
 import os
 import time
 from datetime import datetime
@@ -24,12 +25,13 @@ import pandas as pd
 from elasticsearch import Elasticsearch
 
 # 配置
-EXCEL_FILE = r"D:\Github\py-proj\联麓短信补回调数据\file\inport.xlsx"
+EXCEL_FILE = r"D:\Github\py-proj\联麓短信补回调数据\file\2026-05.csv"
 # ES_HOST = "http://192.168.12.124:88/@q1cloud:base.es.biz-10.10.0.8:9200/"  # ES Q1地址
 ES_HOST = "http://192.168.12.124:88/@qcloud:base.es.biz-172.21.65.197:9200/"  # ES Q云地址
 ES_INDEX = "esmsgsms2605"  # ES 索引名
-BRAND_ID = 7148
+BRAND_ID = 7134
 DRY_RUN = False  # True=只输出日志不实际更新, False=实际更新
+DEBUG = True  # True=输出查询、命中和更新文档等调试信息
 BATCH_SIZE = 200 # 每个批次执行条数
 BATCH_WAIT_SEC = 5 # 每个批次执行间隔时间 单位s
 
@@ -45,20 +47,48 @@ STATUS_TO_RES_STATUS_CODE = {
 }
 
 
+def debug_log(message: str) -> None:
+    """仅在调试模式开启时输出日志。"""
+    if DEBUG:
+        print(f"[DEBUG] {message}")
+
+
 def connect_es() -> Elasticsearch:
     """连接 ES"""
     return Elasticsearch([ES_HOST], timeout=30, max_retries=3, retry_on_timeout=True)
 
 
-def read_excel(file_path: str) -> pd.DataFrame:
-    """读取 Excel 文件"""
-    df = pd.read_excel(file_path)
+def read_input_file(file_path: str) -> pd.DataFrame:
+    """根据扩展名读取 Excel 或 CSV 文件。"""
+    suffix = Path(file_path).suffix.lower()
+    if suffix == ".csv":
+        # 联麓导出的 CSV 可能存在数据列数多于表头列数的情况，补充临时列名避免字段错位。
+        with open(file_path, "r", encoding="utf-8-sig", newline="") as csv_file:
+            reader = csv.reader(csv_file)
+            headers = next(reader)
+            first_row = next(reader, [])
+
+        extra_count = max(0, len(first_row) - len(headers))
+        column_names = headers + [f"_extra_{index + 1}" for index in range(extra_count)]
+        df = pd.read_csv(
+            file_path,
+            encoding="utf-8-sig",
+            header=None,
+            names=column_names,
+            skiprows=1,
+            dtype={"任务编号": str, "手机号": str},
+        )
+        debug_log(f"CSV 读取完成，额外无名列数={extra_count}")
+    elif suffix in {".xlsx", ".xls"}:
+        df = pd.read_excel(file_path, dtype={"任务编号": str, "手机号": str})
+    else:
+        raise ValueError(f"不支持的文件格式: {suffix}，仅支持 CSV、XLSX、XLS")
 
     # 检查必要的列是否存在
     required_columns = ["任务编号", "手机号", "计费", "状态", "状态码"]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
-        raise ValueError(f"Excel 文件缺少必要的列: {missing_columns}")
+        raise ValueError(f"输入文件缺少必要的列: {missing_columns}")
 
     return df
 
@@ -137,8 +167,10 @@ def search_es_docs_batch(es: Elasticsearch, items: list) -> dict:
         },
         "size": len(gateway_ids) * 10,  # 适当放大
     }
+    debug_log(f"查询索引={ES_INDEX}, 条件={query}")
     result = es.search(index=ES_INDEX, body=query)
     hits = result.get("hits", {}).get("hits", [])
+    debug_log(f"ES 返回命中数={len(hits)}")
 
     # 构建结果字典
     results = {}
@@ -150,6 +182,7 @@ def search_es_docs_batch(es: Elasticsearch, items: list) -> dict:
         key = (source.get("gatewayId"), source.get("toClient"))
         if key in results:
             results[key] = hit
+            debug_log(f"命中文档: key={key}, doc_id={hit['_id']}")
 
     return results
 
@@ -176,6 +209,7 @@ def update_es_docs_batch(es: Elasticsearch, update_list: list) -> tuple:
     for doc_id, doc in update_list:
         bulk_body.append({"update": {"_index": ES_INDEX, "_id": doc_id}})
         bulk_body.append({"doc": doc})
+        debug_log(f"待更新文档: doc_id={doc_id}, doc={doc}")
 
     # 执行批量更新
     try:
@@ -194,6 +228,8 @@ def update_es_docs_batch(es: Elasticsearch, update_list: list) -> tuple:
 
 def main():
     print(f"开始处理文件: {EXCEL_FILE}")
+    if DEBUG:
+        print("[DEBUG] 调试日志已开启")
     if DRY_RUN:
         print("=" * 50)
         print("[DRY-RUN 模式] 仅输出日志，不实际更新 ES 数据")
@@ -205,7 +241,7 @@ def main():
         return
 
     # 读取 Excel
-    df = read_excel(EXCEL_FILE)
+    df = read_input_file(EXCEL_FILE)
     print(f"共读取 {len(df)} 条记录")
 
     # 连接 ES

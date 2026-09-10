@@ -1,0 +1,43 @@
+#需求描述
+1. 通过 busi-log 日志系统查询日志: 方法请参考 D:\Github\py-proj\京东会员通bugfix\20260615-unionid\jd_unionid_export.py
+2. 根据查询出来的日志, 解析字段放到excel, 文件生成到 D:\Github\py-proj\京东灰度接口\file
+3. 字段必须包含:'httpPath', 'requestContent'
+4. 根据 'httpPath'的值, 对'requestContent'做json解析, json值放到对应字段
+4.1 httpPath=/api/member/AdjustPoint
+json示例: {"account":"1227164_jd","appkey":"A9939AACB0CF06004388FA6EF9E41546","brandId":"100000000037737","changeType":"add","content":"开卡会员","extend":"{"businessId":"oc_100000000037737_13217423814_p","omid":"HppbB0CHL-Dsr8IUMyQqdYdSmYat5MlJUj2ka2bV5Zc"}","occurTime":"2026-09-08 15:36:49","platform":"JD","point":30,"pointType":0,"timestamp":1788853009965,"token":"1A876AA8628A54F6DEC6AA55831B2FB2"}
+每个字段创建一个excel的列, 'extend' 里面还有一层json, 也解析出来作为单独的列
+4.2 httpPath=/api/member/UpdateMemberData
+json示例: {"MixPhone":"f82ddf35127979f7fb2d759b4781a31f","account":"1227164_jd","appkey":"A9939AACB0CF06004388FA6EF9E41546","bind_status":2,"brandId":"100000000037737","cardStatus":0,"jd_bind_time":"2026-09-08 15:36:34","memberData":{"extend":"{"jdPoint":0}","point":0},"omid":"HppbB0CHL-Dsr8IUMyQqdYdSmYat5MlJUj2ka2bV5Zc","platform":"JD","timestamp":1788852996818,"token":"B90564C177D6C1882B501AB19BB318BE","totalOrderCount":0,"totalOrderPrice":0}
+每个字段创建一个excel的列, 'memberData.extend' 里面还有一层json, 也解析出来作为单独的列; 'memberData.point'也作为单独列;
+4.3 httpPath=/api/member/MemberRegister
+json示例: {"MixPhone":"eec4250e236ae187ca501d5d8a838970","appkey":"A9939AACB0CF06004388FA6EF9E41546","brandId":"100000000037737","extend":{"point":0},"jd_bind_time":"2026-09-08 15:31:12","omid":"HppbB0CHL-Dsr8IUMyQqdfICxr64ZwTAUR2B8hMeJWg","platform":"JD","timestamp":1788852674099,"token":"28FF0E3E0C2C2A883407C49F78071EA1"}
+每个字段创建一个excel的列, 'extend' 里面还有一层json, 也解析出来作为单独的列
+5. 如果发现我没列出的httpPath 或者是示例中没有的字段, 请终止程序, 抛出对应错误原因, 让开发人员修改代码, 添加对应的处理逻辑
+
+6. 以下是查询日志的相关参数
+LIST_URL = "https://log.ezrpro.work/api/logs"
+
+DETAIL_URL_TEMPLATE = (
+    "https://log.ezrpro.work/api/log/session/{session_id}"
+    "?sessionId={session_id}&appName={app_name}&estimatedDate={estimated_date}&page=0&pageSize=50"
+)
+
+DEFAULT_COOKIE = (
+    "opt.authorize=267dffc44a4b4c05a4378fd3ac539eaf; "
+    "jwt_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjI3OSwibmFtZSI6InNzb2xvZ2luIiwidXNlcm5hbWUiOiJaaGFuZ0ppbmdXZWkiLCJleHBpciI6MTc4ODg1NDg1Nn0.YStSFYMUAUyadNepZXn3wzIQ2A43qL4-GcurdDT5PeY"
+)
+
+DEFAULT_CONFIG = {
+    "app_name": "EZR.OP.ThirdPartyProxy.ApiHost",
+    "cluster": "QCloud",
+    "clusters": "QCloud",
+    "log_categories": "HttpServer",
+    "brand_id": "7095",
+    "search_word": "#requestContent:(+omid +100000000037737) AND message:(/api/member/) AND duration:>1",
+    "token": "07f58351f8c44ce8a84ff3388481f874",
+    "page_size": 100,
+    "start_time": "2026-09-08 14:29:00",
+    "end_time": "2026-09-08 15:51:05",
+    "timezone": "Asia/Shanghai",
+    "cookie": DEFAULT_COOKIE,
+}

@@ -7,32 +7,35 @@ import re
 # ==========================================
 ''' 此为基础参数模板
 {
-    "BrandId": 6964,
+    "BrandId": 7135,
     "MobileNo": "",
     "OpenId": "",
     "SaleNo": "",
     "VipId": 0,
     "OldVipId": 0,
-    "OldCode": ""
+    "OldCode": "",
+    "DataOrigin": 23
 }
 # OldVipId 查询掩码会员信息
 # VipId 和 OldVipId 同时有值, 会生成 `crm_vip_info_bindold`: VipId=1 AND OldVipId=2
 ## 没有值的参数不会生成相关的sql
+## DataOrigin: 23-抖音, 11-京东
 '''
 PARAMS_JSON = """
 {
-    "BrandId": 7135,
+    "BrandId": 6887,
     "MobileNo": "",
     "OpenId": "",
     "SaleNo": "",
-    "VipId": 1192004,
+    "VipId": 1808743,
     "OldVipId": 0,
-    "OldCode": ""
+    "OldCode": "",
+    "DataOrigin": 0
 }
 """
 
 # ==========================================
-# 2. 分表策略配置 (BrandId -> Table -> Count)
+# 2. 分表策略配置 (BrandId -> Table -> Count) 
 # ==========================================
 # 针对特定 BrandId 定义分表数量，未定义的表默认 Count=1
 BRAND_SHARD_CONFIG = {
@@ -40,6 +43,20 @@ BRAND_SHARD_CONFIG = {
         "crm_sal_vip_sale": 8,
         "crm_vip_info": 8,
         "crm_vip_info_consume": 8
+    },
+    132: {
+        "crm_sal_vip_sale": 8,
+        "crm_vip_info": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_bonus": 16
+    },
+    184: {
+        "crm_sal_vip_sale": 1,
+        "crm_vip_info": 1,
+        "crm_vip_info_consume": 1,
+        "crm_vip_info_bindold": 1,
+        "crm_vip_info_bonus": 1
     },
     311: {
         "crm_sal_vip_sale": 4,
@@ -129,6 +146,13 @@ BRAND_SHARD_CONFIG = {
         "crm_vip_info_bindold": 8,
         "crm_vip_info_consume": 8,
         "crm_vip_info_bonus": 16
+    },
+    7163: {
+        "crm_sal_vip_sale": 16,
+        "crm_vip_info": 8,
+        "crm_vip_info_bindold": 8,
+        "crm_vip_info_consume": 8,
+        "crm_vip_info_bonus": 16
     }
 }
 
@@ -170,12 +194,12 @@ TABLE_CONFIG_JSON = """
     {
         "Desc": ">> crm订单表",
         "Table": "crm_sal_vip_sale",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND SaleNo='{SaleNo}' AND DataOrigin=23"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND SaleNo='{SaleNo}' AND DataOrigin={DataOrigin}"
     },
     {
         "Desc": ">> crm订单表",
         "Table": "crm_sal_vip_sale",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId} AND DataOrigin=23"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND VipId={VipId} AND DataOrigin={DataOrigin}"
     },
     {
         "Desc": "crm合卡记录",
@@ -240,15 +264,39 @@ TABLE_CONFIG_JSON = """
     {
         "Desc": ">> 根据抖音Open查询订单",
         "Table": "mall_sales_oth_order",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND DataOrigin=23 AND BuyerCode='{OpenId}'"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND DataOrigin={DataOrigin} AND BuyerCode='{OpenId}'"
     },
     {
         "Desc": ">> 抖音订单",
         "Table": "mall_sales_oth_order",
-        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND DataOrigin=23 AND Code='{SaleNo}'"
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND DataOrigin={DataOrigin} AND Code='{SaleNo}'"
     }
 ]
 """
+
+
+class SqlTemplatePreprocessor:
+    """在参数校验和格式化前，处理可选 SQL 查询条件。"""
+
+    OPTIONAL_ZERO_VALUE_PARAMS = ("DataOrigin",)
+
+    @classmethod
+    def remove_zero_value_conditions(cls, sql_template, params):
+        """参数值为 0 时，仅移除对应的 AND 条件，不跳过整条 SQL。"""
+
+        processed_template = sql_template
+        for param_name in cls.OPTIONAL_ZERO_VALUE_PARAMS:
+            if params.get(param_name) != 0:
+                continue
+
+            condition_pattern = re.compile(
+                rf"\s+AND\s+{re.escape(param_name)}\s*=\s*"
+                rf"\{{{re.escape(param_name)}\}}",
+                re.IGNORECASE,
+            )
+            processed_template = condition_pattern.sub("", processed_template)
+
+        return processed_template
 
 def check_params_valid(sql_template, params):
     """
@@ -308,6 +356,10 @@ def generate_sqls():
         count = shard_map.get(table, default_count)
         
         sql_template = config.get("Sql", "")
+        sql_template = SqlTemplatePreprocessor.remove_zero_value_conditions(
+            sql_template,
+            params,
+        )
         
         # --- 校验参数有效性 ---
         is_valid, missing_key = check_params_valid(sql_template, params)

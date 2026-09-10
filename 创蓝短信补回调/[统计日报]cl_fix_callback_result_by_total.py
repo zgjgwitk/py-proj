@@ -1,9 +1,9 @@
 """
-创蓝短信补回调结果脚本 - 根据 Excel 日统计补足回调状态 (按天循环)
+创蓝短信补回调结果脚本 - 根据 CSV/Excel 日统计补足回调状态 (按天循环)
 
 功能:
-1. 从 Excel 文件读取每日目标 (成功/失败/未知数)
-2. 从文件名提取 ES 索引名 (日统计yyyy-MM.xlsx -> esmsgsmsYYMM)
+1. 从 CSV 或 Excel 文件读取每日目标 (成功/失败/未知数)
+2. 从文件名提取 ES 索引名 (日统计yyyy-MM.csv -> esmsgsmsYYMM)
 3. 按天循环, 每天独立执行: 统计 -> 校验 -> 搜索 -> 批量更新 -> 复核
 4. 使用 if_seq_no + if_primary_term 乐观锁, 防止 ES 副本同步延迟导致的重复更新
 5. 单天失败不中断整体, 记录后继续下一天, 最后打印所有天汇总
@@ -26,10 +26,13 @@ ES_HOST = "http://192.168.12.124:88/@qcloud:base.es.biz-172.21.65.197:9200/"  # 
 # ES_HOST_Q1 = "http://192.168.12.124:88/@q1cloud:base.es.biz-10.10.0.8:9200/"  # ES-Q1 地址
 # ES_HOST_DEV = "http://192.168.128.142:9200/"  # ES-dev 地址
 # ES_HOST_QCLOUD = "http://192.168.12.124:88/@qcloud:base.es.biz-172.21.65.197:9200/"  # ES-q云 地址
-BRAND_ID = 6830
+BRAND_ID = 132
 SMS_CHAN = 20  # 创蓝渠道, 固定 20
-SERVICE_TYPES = [5]  # 文本短信: [1, 2], 视频短信: [5]
-EXCEL_FILE = r"D:\Github\py-proj\创蓝短信补回调\file\日统计2025-12.xlsx"  # 配置 Excel (文件名含 yyyy-MM, 用于提取索引名)
+# SERVICE_TYPES = [5]  # 文本短信: [1, 2], 视频短信: [5]
+SERVICE_TYPES = [1, 2]  # 文本短信: [1, 2], 视频短信: [5]
+SERVICE_TYPE1_ACCOUNT = "N445091_N6682443"  # serviceType=1 对应的日报账号
+SERVICE_TYPE2_ACCOUNT = "M245138_M6771238"  # serviceType=2 对应的日报账号，请按实际情况配置
+EXCEL_FILE = r"D:\Github\py-proj\创蓝短信补回调\file\日统计26-01.csv"  # 配置文件，支持 CSV/XLS/XLSX
 
 # 执行控制
 DRY_RUN = False  # True=所有天都只打印计划, False=所有天都真实执行
@@ -67,20 +70,20 @@ def extract_es_index_from_filename(file_path: str) -> str:
     从文件名提取 ES 索引名
 
     例:
-        日统计2025-09.xlsx -> esmsgsms2509
-        日统计2025-12.xlsx -> esmsgsms2512
+        日统计2025-09.csv -> esmsgsms2509
+        日统计26-01.csv -> esmsgsms2601
     """
     file_name = os.path.basename(file_path)
-    match = re.search(r"(\d{4})-(\d{2})", file_name)
+    match = re.search(r"(?<!\d)(\d{2}|\d{4})-(\d{2})(?!\d)", file_name)
     if not match:
-        raise ValueError(f"文件名 {file_name} 不包含 yyyy-MM 格式的年月, 无法提取索引名")
+        raise ValueError(f"文件名 {file_name} 不包含 yyyy-MM 或 yy-MM 格式的年月, 无法提取索引名")
     year, month = match.group(1), match.group(2)
-    return f"esmsgsms{year[2:]}{month}"
+    return f"esmsgsms{year[-2:]}{month}"
 
 
 def load_excel_config(file_path: str) -> list[dict]:
     """
-    读取 Excel 配置, 返回每日配置列表
+    读取 CSV/Excel 配置, 返回每日配置列表
 
     Returns:
         [
@@ -101,15 +104,28 @@ def load_excel_config(file_path: str) -> list[dict]:
         - 发送总数为 0 -> 跳过 (无意义)
     """
     if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Excel 文件不存在: {file_path}")
+        raise FileNotFoundError(f"配置文件不存在: {file_path}")
 
-    df = pd.read_excel(file_path, dtype=str)
+    suffix = os.path.splitext(file_path)[1].lower()
+    if suffix == ".csv":
+        # utf-8-sig 同时兼容普通 UTF-8 和带 BOM 的 CSV；部分 Windows
+        # 导出文件使用 GB18030，因此解码失败时自动回退。
+        try:
+            df = pd.read_csv(file_path, dtype=str, encoding="utf-8-sig")
+        except UnicodeDecodeError:
+            df = pd.read_csv(file_path, dtype=str, encoding="gb18030")
+    elif suffix in (".xls", ".xlsx"):
+        df = pd.read_excel(file_path, dtype=str)
+    else:
+        raise ValueError(f"不支持的配置文件格式: {suffix or '无扩展名'}，仅支持 CSV/XLS/XLSX")
     df.columns = [str(c).strip() for c in df.columns]  # 去除列名首尾空白
 
     required = ["日期", "成功数", "失败数", "未知数"]
+    if any(service_type in (1, 2) for service_type in SERVICE_TYPES):
+        required.append("账号")
     missing = [c for c in required if c not in df.columns]
     if missing:
-        raise ValueError(f"Excel 缺少必要列: {missing}")
+        raise ValueError(f"配置文件缺少必要列: {missing}")
 
     configs = []
     for idx, row in df.iterrows():
@@ -139,7 +155,9 @@ def load_excel_config(file_path: str) -> list[dict]:
             print(f"  [跳过] 第 {idx + 1} 行日期格式无法解析: {date_str}")
             continue
 
+        account = str(row["账号"]).strip() if "账号" in df.columns and not pd.isna(row["账号"]) else ""
         configs.append({
+            "account": account,
             "date": date_str,
             "req_time_day": req_time_day,
             "success": success,
@@ -149,12 +167,12 @@ def load_excel_config(file_path: str) -> list[dict]:
         })
 
     if not configs:
-        raise ValueError(f"Excel 中没有有效数据行: {file_path}")
+        raise ValueError(f"配置文件中没有有效数据行: {file_path}")
 
     return configs
 
 
-def build_base_filter(req_time_day: int | None = None) -> dict:
+def build_base_filter(service_type: int, req_time_day: int | None = None) -> dict:
     """
     构造所有 ES 查询共享的 bool 过滤对象: brandId + smsChan + serviceType + (可选) reqTimeDay
 
@@ -167,7 +185,7 @@ def build_base_filter(req_time_day: int | None = None) -> dict:
     filters = [
         {"term": {"brandId": BRAND_ID}},
         {"term": {"smsChan": SMS_CHAN}},
-        {"terms": {"serviceType": SERVICE_TYPES}},
+        {"term": {"serviceType": service_type}},
     ]
     if req_time_day is not None:
         filters.append({"term": {"reqTimeDay": req_time_day}})
@@ -179,7 +197,12 @@ def build_base_filter(req_time_day: int | None = None) -> dict:
     }
 
 
-def count_by_res_status(es: Elasticsearch, es_index: str, req_time_day: int | None = None) -> dict:
+def count_by_res_status(
+    es: Elasticsearch,
+    es_index: str,
+    service_type: int,
+    req_time_day: int | None = None,
+) -> dict:
     """
     按 brandId + smsChan + serviceType + (可选) reqTimeDay 统计各 resStatus 的文档数量
 
@@ -192,7 +215,7 @@ def count_by_res_status(es: Elasticsearch, es_index: str, req_time_day: int | No
             "other": int,         # 其他状态
         }
     """
-    base_query = build_base_filter(req_time_day)  # bool 查询 dict
+    base_query = build_base_filter(service_type, req_time_day)  # bool 查询 dict
 
     def search_count(query: dict) -> int:
         """执行 size=0 计数查询, 返回 total.value"""
@@ -310,6 +333,7 @@ def validate_before_update(
 def search_unknown_docs(
     es: Elasticsearch,
     es_index: str,
+    service_type: int,
     limit: int,
     req_time_day: int | None = None,
 ):
@@ -322,7 +346,7 @@ def search_unknown_docs(
     Yields:
         (doc_id, seq_no, primary_term) 的生成器
     """
-    base_query = build_base_filter(req_time_day)
+    base_query = build_base_filter(service_type, req_time_day)
     query = {
         "bool": {
             **base_query["bool"],
@@ -463,6 +487,7 @@ def print_comparison(
 def process_one_day(
     es: Elasticsearch,
     es_index: str,
+    service_type: int,
     cfg: dict,
     dry_run: bool,
     batch_size: int,
@@ -496,11 +521,11 @@ def process_one_day(
     target_failed = cfg["failed"]
     target_unknown = cfg["unknown"]
 
-    print(f"\n日期: {date}, reqTimeDay={req_time_day}")
+    print(f"\nserviceType={service_type}, 账号={cfg.get('account', '-')}, 日期: {date}, reqTimeDay={req_time_day}")
     print(f"目标: 成功={target_success}, 失败={target_failed}, 未知={target_unknown}, 合计={cfg['total']}")
 
     # 1. 统计
-    before_stats = count_by_res_status(es, es_index, req_time_day)
+    before_stats = count_by_res_status(es, es_index, service_type, req_time_day)
     print_stats(f"{date} 更新前统计", before_stats)
 
     # 2. 校验
@@ -545,7 +570,9 @@ def process_one_day(
 
     # 3. 查询待更新文档
     print(f"\n开始查询 resStatus=1 的文档, 计划取 {need_update_total} 条...")
-    candidates = list(search_unknown_docs(es, es_index, need_update_total, req_time_day))
+    candidates = list(
+        search_unknown_docs(es, es_index, service_type, need_update_total, req_time_day)
+    )
     print(f"实际查询到 {len(candidates)} 条待更新文档")
 
     if len(candidates) < need_update_total:
@@ -617,7 +644,7 @@ def process_one_day(
     print(f"  (版本冲突是预期内的, 表示该文档在脚本执行期间被其他流程修改过)")
 
     # 7. 更新后复核
-    after_stats = count_by_res_status(es, es_index, req_time_day)
+    after_stats = count_by_res_status(es, es_index, service_type, req_time_day)
     print_stats(f"{date} 更新后统计", after_stats)
     print_comparison(before_stats, after_stats, target_success, target_failed, target_unknown)
 
@@ -638,13 +665,15 @@ def process_one_day(
 
 def main():
     print("=" * 60)
-    print("创蓝短信补回调结果脚本 - 按 Excel 日统计补差额 (按天循环)")
+    print("创蓝短信补回调结果脚本 - 按 CSV/Excel 日统计补差额 (按天循环)")
     print("=" * 60)
     print(f"ES 地址:    {ES_HOST}")
-    print(f"Excel 文件: {EXCEL_FILE}")
+    print(f"配置文件:   {EXCEL_FILE}")
     print(f"brandId:    {BRAND_ID}")
     print(f"smsChan:    {SMS_CHAN} (创蓝)")
     print(f"serviceType:{SERVICE_TYPES}")
+    print(f"type 1 账号: {SERVICE_TYPE1_ACCOUNT or '(未配置)'}")
+    print(f"type 2 账号: {SERVICE_TYPE2_ACCOUNT or '(未配置)'}")
     print(f"DRY_RUN:    {DRY_RUN}")
 
     # 1. 解析文件名 -> ES 索引
@@ -655,19 +684,14 @@ def main():
         print(f"[错误] {e}")
         return
 
-    # 2. 读取 Excel -> 每日配置
+    # 2. 读取 CSV/Excel -> 每日配置
     try:
         configs = load_excel_config(EXCEL_FILE)
     except (FileNotFoundError, ValueError) as e:
-        print(f"[错误] 读取 Excel 失败: {e}")
+        print(f"[错误] 读取配置文件失败: {e}")
         return
 
-    print(f"\n共解析到 {len(configs)} 个有效日期:")
-    for i, cfg in enumerate(configs, 1):
-        print(
-            f"  [{i}/{len(configs)}] {cfg['date']} (reqTimeDay={cfg['req_time_day']}): "
-            f"成功={cfg['success']}, 失败={cfg['failed']}, 未知={cfg['unknown']}, 合计={cfg['total']}"
-        )
+    print(f"\n共解析到 {len(configs)} 行有效配置")
 
     # 3. DRY_RUN 提示
     if DRY_RUN:
@@ -685,48 +709,80 @@ def main():
     es = connect_es()
     print(f"\n已连接到 ES: {ES_HOST}")
 
-    # 5. 按天循环
+    # 5. SERVICE_TYPES 作为外层循环，每次只处理一种 serviceType
+    account_by_service_type = {
+        1: SERVICE_TYPE1_ACCOUNT,
+        2: SERVICE_TYPE2_ACCOUNT,
+    }
     summary = []
-    total_days = len(configs)
-    for i, cfg in enumerate(configs, 1):
-        print(f"\n{'=' * 60}")
-        print(f"[{i}/{total_days}] 开始处理 {cfg['date']}")
-        print(f"{'=' * 60}")
+    for service_type in SERVICE_TYPES:
+        if service_type in account_by_service_type:
+            account = account_by_service_type[service_type].strip()
+            if not account:
+                print(f"\n[跳过] serviceType={service_type} 未配置对应账号")
+                continue
+            service_configs = [cfg for cfg in configs if cfg["account"] == account]
+        else:
+            account = ""
+            service_configs = configs
 
-        try:
-            result = process_one_day(
-                es,
-                es_index,
-                cfg,
-                DRY_RUN,
-                BATCH_SIZE,
-                BATCH_WAIT_SEC,
-                MAX_UPDATE_LIMIT,
+        if not service_configs:
+            print(
+                f"\n[跳过] serviceType={service_type} 在配置文件中没有匹配账号 "
+                f"{account!r} 的数据"
             )
-        except Exception as e:
-            print(f"[异常] {cfg['date']} 处理失败: {e}")
-            result = {
-                "date": cfg["date"],
-                "req_time_day": cfg["req_time_day"],
-                "status": "failed",
-                "before_stats": None,
-                "after_stats": None,
-                "need_success": cfg["success"],
-                "need_failed": cfg["failed"],
-                "updated": 0,
-                "conflict": 0,
-                "failed_bulk": 0,
-                "message": f"异常: {e}",
-            }
+            continue
 
-        summary.append(result)
+        print(f"\n{'#' * 70}")
+        print(
+            f"开始处理 serviceType={service_type}, 账号={account or '(无需匹配)'}, "
+            f"共 {len(service_configs)} 天"
+        )
+        print(f"{'#' * 70}")
+
+        total_days = len(service_configs)
+        for i, cfg in enumerate(service_configs, 1):
+            print(f"\n{'=' * 60}")
+            print(f"[{i}/{total_days}] serviceType={service_type}, 开始处理 {cfg['date']}")
+            print(f"{'=' * 60}")
+
+            try:
+                result = process_one_day(
+                    es,
+                    es_index,
+                    service_type,
+                    cfg,
+                    DRY_RUN,
+                    BATCH_SIZE,
+                    BATCH_WAIT_SEC,
+                    MAX_UPDATE_LIMIT,
+                )
+            except Exception as e:
+                print(f"[异常] serviceType={service_type}, {cfg['date']} 处理失败: {e}")
+                result = {
+                    "date": cfg["date"],
+                    "req_time_day": cfg["req_time_day"],
+                    "status": "failed",
+                    "before_stats": None,
+                    "after_stats": None,
+                    "need_success": cfg["success"],
+                    "need_failed": cfg["failed"],
+                    "updated": 0,
+                    "conflict": 0,
+                    "failed_bulk": 0,
+                    "message": f"异常: {e}",
+                }
+
+            result["service_type"] = service_type
+            result["account"] = account
+            summary.append(result)
 
     # 6. 汇总
     print(f"\n{'=' * 70}")
     print(f"所有天处理完成, 汇总:")
     print(f"{'=' * 70}")
     print(
-        f"{'日期':<14}{'状态':<10}{'目标数':<8}{'计划':<8}{'更新':<8}{'冲突':<6}{'失败':<6}{'备注'}"
+        f"{'类型':<6}{'日期':<14}{'状态':<10}{'当前数':<8}{'计划':<8}{'更新':<8}{'冲突':<6}{'失败':<6}{'备注'}"
     )
     print("-" * 70)
     for r in summary:
@@ -741,7 +797,7 @@ def main():
             updated = r["updated"]
         msg = r["message"][:30] + ("..." if len(r["message"]) > 30 else "")
         print(
-            f"{r['date']:<14}{r['status']:<10}{r.get('before_stats', {}).get('total', '-'):<8}"
+            f"{r['service_type']:<6}{r['date']:<14}{r['status']:<10}{r.get('before_stats', {}).get('total', '-'):<8}"
             f"{str(plan):<8}{str(updated):<8}{r['conflict']:<6}{r['failed_bulk']:<6}{msg}"
         )
 
