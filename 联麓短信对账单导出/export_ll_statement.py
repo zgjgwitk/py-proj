@@ -1,5 +1,6 @@
 #   "es_url": "http://192.168.12.124:88/@qcloud:base.es.biz-172.21.65.197:9200/",
 #   "es_url": "http://192.168.12.124:88/@q1cloud:base.es.biz-10.10.0.8:9200/",
+#  链接配置在 config.json 文件中
 from __future__ import annotations
 
 import argparse
@@ -187,6 +188,9 @@ def build_metric_aggs() -> dict[str, Any]:
     return {
         "min_req_time": {"min": {"field": "reqTime", "format": "yyyy-MM-dd HH:mm:ss"}},
         "max_req_time": {"max": {"field": "reqTime", "format": "yyyy-MM-dd HH:mm:ss"}},
+        "submit_count": {
+            "filter": {"bool": {"must_not": [{"term": {"resStatus": EXCLUDE_TOTAL_RES_STATUS}}]}},
+        },
         "total_charge_num": {
             "filter": {"bool": {"must_not": [{"term": {"resStatus": EXCLUDE_TOTAL_RES_STATUS}}]}},
             "aggs": {"charge": {"sum": {"field": "chargeNum"}}},
@@ -282,7 +286,7 @@ def build_summary_rows(buckets: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "产品类型": service_type_label(service_type),
                 "开始时间": bucket.get("min_req_time", {}).get("value_as_string", ""),
                 "结束时间": bucket.get("max_req_time", {}).get("value_as_string", ""),
-                "提交量": to_int(bucket.get("doc_count", 0)),
+                "提交量": to_int(bucket.get("submit_count", {}).get("doc_count", 0)),
                 "总计费量": total_charge_num,
                 "成功计费量": to_int(bucket.get("success_charge_num", {}).get("charge", {}).get("value")),
                 "失败计费量": failed_charge_num,
@@ -308,7 +312,7 @@ def build_detail_rows(buckets: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "EZR账号": account_label(key.get("ezrAcc")),
                 "发送日期": to_int(key.get("reqTimeDay")),
                 "产品类型": service_type_label(service_type),
-                "提交量": to_int(bucket.get("doc_count", 0)),
+                "提交量": to_int(bucket.get("submit_count", {}).get("doc_count", 0)),
                 "总计费量": total_charge_num,
                 "成功计费量": to_int(bucket.get("success_charge_num", {}).get("charge", {}).get("value")),
                 "失败计费量": failed_charge_num,
