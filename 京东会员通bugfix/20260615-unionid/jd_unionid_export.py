@@ -31,13 +31,12 @@ DEFAULT_CONFIG = {
     "cluster": "QCloud",
     "clusters": "QCloud",
     "log_categories": "HttpServer",
-    "brand_id": "6973",
-    "search_word": "#message:MemberRegisterCdpToCrm AND duration:>1",
+    "search_word": "#message:MemberRegisterCdpToCrm AND brandId:(-7095 -1752 -5417 -7054 -7135 -7097 -7126 -7091 -7003) AND duration:>1",
     "token": "07f58351f8c44ce8a84ff3388481f874",
     "page_size": 100,
     # "start_time": "2026-06-10 22:00:00",
-    "start_time": "2026-06-15 0:00:00",
-    "end_time": "2026-06-15 23:59:59",
+    "start_time": "2026-09-22 0:00:00",
+    "end_time": "2026-09-28 23:59:59",
     "timezone": "Asia/Shanghai",
     "cookie": DEFAULT_COOKIE,
 }
@@ -76,7 +75,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="查询京东会员通 unionId 日志并导出 Excel")
     parser.add_argument("--start-time", default=DEFAULT_CONFIG["start_time"], help="开始时间，格式: YYYY-MM-DD HH:MM:SS")
     parser.add_argument("--end-time", default=DEFAULT_CONFIG["end_time"], help="结束时间，格式: YYYY-MM-DD HH:MM:SS")
-    parser.add_argument("--brand-id", default=DEFAULT_CONFIG["brand_id"], help="brandId")
+    # brand-id 可选：未传则不传 brandId 给后端，使用 search_word 内的过滤条件
+    parser.add_argument("--brand-id", default=None, help="brandId；不传则不限制具体品牌，使用 search_word 中的过滤")
     parser.add_argument("--search-word", default=DEFAULT_CONFIG["search_word"], help="日志搜索词")
     parser.add_argument("--token", default=DEFAULT_CONFIG["token"], help="列表接口 token")
     parser.add_argument("--cookie", default=DEFAULT_CONFIG["cookie"], help="请求 Cookie")
@@ -173,7 +173,6 @@ def fetch_log_list(
             "hosts": "",
             "levels": "",
             "logCategories": config.log_categories,
-            "brandId": config.brand_id,
             "startDate": window.start_ms,
             "endDate": window.end_ms,
             "searchWord": config.search_word,
@@ -185,6 +184,8 @@ def fetch_log_list(
             "pageSize": config.page_size,
             "token": config.token,
         }
+        if config.brand_id is not None:
+            payload["brandId"] = config.brand_id
         data = request_json(session, "POST", LIST_URL, payload=payload)
         log_events = (data.get("data") or {}).get("logEvents") or []
         total = (data.get("data") or {}).get("total")

@@ -22,16 +22,16 @@ import pandas as pd
 from elasticsearch import Elasticsearch
 
 # 配置
-EXCEL_FILE = r"D:\Github\py-proj\创蓝短信补回调\file\26-02.csv"
+EXCEL_FILE = r"D:\Github\py-proj\创蓝短信补回调\file\23hao.csv"
 # ES_HOST = "http://192.168.12.124:88/@q1cloud:base.es.biz-10.10.0.8:9200/"  # ES Q1地址
 ES_HOST = "http://192.168.12.124:88/@qcloud:base.es.biz-172.21.65.197:9200/"  # ES Q云地址
-ES_INDEX = "esmsgsms2601"  # ES 索引名
-BRAND_ID = 6830
-DRY_RUN = False  # True=只输出日志不实际更新, False=实际更新
+ES_INDEX = "esmsgsms2609"  # ES 索引名
+BRAND_ID = 358
+DRY_RUN = False  # !!!True=只输出日志不实际更新, False=实际更新
 BATCH_SIZE = 200 # 每个批次执行条数
 BATCH_WAIT_SEC = 5 # 每个批次执行间隔时间 单位s
 
-# 状态映射
+# 状态映射 创蓝表示: EZR-resStatus
 STATUS_TO_RES_STATUS = {
     "2": 4,
     "1": 3,
@@ -44,15 +44,44 @@ def connect_es() -> Elasticsearch:
     return Elasticsearch([ES_HOST], timeout=30, max_retries=3, retry_on_timeout=True)
 
 
-def read_excel(file_path: str) -> pd.DataFrame:
-    """读取 Excel 文件"""
-    df = pd.read_excel(file_path)
+def _is_xlsx_by_signature(file_path: str) -> bool:
+    """通过二进制头判断是否为 xlsx（ZIP 格式：PK\x03\x04）"""
+    try:
+        with open(file_path, "rb") as f:
+            return f.read(4) == b"PK\x03\x04"
+    except OSError:
+        return False
+
+
+def read_file(file_path: str) -> pd.DataFrame:
+    """根据文件内容选择读取方式，支持 .csv / .xlsx / .xls
+
+    优先按扩展名分发；若扩展名是 .csv 但内容是 ZIP（即 .xlsx 被错命名），
+    自动 fallback 到 pd.read_excel。
+    """
+    ext = Path(file_path).suffix.lower()
+
+    if ext in (".xlsx", ".xls") or (ext == ".csv" and _is_xlsx_by_signature(file_path)):
+        df = pd.read_excel(file_path)
+    elif ext == ".csv":
+        # 按优先级尝试常见中文编码
+        last_err: Exception | None = None
+        for enc in ("utf-8-sig", "utf-8", "gbk", "gb18030"):
+            try:
+                df = pd.read_csv(file_path, encoding=enc)
+                break
+            except UnicodeDecodeError as e:
+                last_err = e
+        else:
+            raise ValueError(f"无法识别 CSV 文件编码: {last_err}")
+    else:
+        raise ValueError(f"不支持的文件格式: {ext}，仅支持 .csv / .xlsx / .xls")
 
     # 检查必要的列是否存在
     required_columns = ["批次号", "发送状态", "返回码", "返回信息"]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
-        raise ValueError(f"Excel 文件缺少必要的列: {missing_columns}")
+        raise ValueError(f"文件缺少必要的列: {missing_columns}")
 
     return df
 
@@ -84,14 +113,16 @@ def parse_datetime(value) -> str | None:
 
 
 def build_update_doc(row: pd.Series) -> dict | None:
-    """构建 ES 更新文档，如果状态为'3'则返回 None"""
-    status = str(row["发送状态"]).strip() if not pd.isna(row["发送状态"]) else ""
-
-    # 如果状态为'未知'，跳过此条数据
-    if status == "3":
+    """构建 ES 更新文档，仅处理发送状态为 1/2 的数据，其他返回 None"""
+    raw_status = row["发送状态"]
+    if pd.isna(raw_status):
+        return None
+    status = str(raw_status).strip()
+    # 仅处理 1 和 2，其他状态统一跳过
+    if status not in ("1", "2"):
         return None
 
-    res_status = STATUS_TO_RES_STATUS.get(status)
+    res_status = STATUS_TO_RES_STATUS[status]
     res_status_code = str(row["返回码"]).strip() if not pd.isna(row["返回码"]) else ""
     if res_status_code == "CL_0000":
         res_status_code = "SUCCESS"
@@ -177,16 +208,20 @@ def update_es_docs_batch(es: Elasticsearch, update_list: list) -> tuple:
         # print(f"[update] doc_id={doc_id}, resStatus={doc['resStatus']}, resStatusCode={doc['resStatusCode']}, resStatusMsg={doc['resStatusMsg']}")
 
     # 执行批量更新
-    # try:
-    #     result = es.bulk(body=bulk_body)
-    #     for item in result.get("items", []):
-    #         if item.get("update", {}).get("result") in ["updated", "noop"]:
-    #             success += 1
-    #         else:
-    #             failed += 1
-    # except Exception as e:
-    #     print(f"批量更新失败: {e}")
-    #     failed = len(update_list)
+    try:
+        result = es.bulk(body=bulk_body)
+        for item in result.get("items", []):
+            op_result = item.get("update") or {}
+            status = op_result.get("status", 0)
+            if op_result.get("error") or status >= 300:
+                failed += 1
+                err = op_result.get("error", {})
+                print(f"  [失败] id={op_result.get('_id')} status={status} error={err.get('type')}: {err.get('reason')}")
+            else:
+                success += 1
+    except Exception as e:
+        print(f"批量更新失败: {e}")
+        failed = len(update_list)
 
     return success, failed
 
@@ -203,8 +238,8 @@ def main():
         print(f"文件不存在: {EXCEL_FILE}")
         return
 
-    # 读取 Excel
-    df = read_excel(EXCEL_FILE)
+    # 读取文件（自动识别 .csv / .xlsx / .xls）
+    df = read_file(EXCEL_FILE)
     print(f"共读取 {len(df)} 条记录")
 
     # 连接 ES
@@ -225,10 +260,10 @@ def main():
     for index, row in df.iterrows():
         doc = build_update_doc(row)
 
-        # 跳过状态为'3'的数据
+        # 跳过非 1/2 状态的数据
         if doc is None:
             skipped += 1
-            print(f"[{index + 1}/{total}] 跳过: 状态为'3'")
+            print(f"[{index + 1}/{total}] 跳过: 非 1/2 状态")
             continue
 
         # 从 Excel 行数据获取查询条件

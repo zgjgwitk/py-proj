@@ -8,7 +8,7 @@ import re
 ''' 此为基础参数模板
 {
     "BrandId": 7135,
-    "MobileNo": "",
+    "MobileNo": "13402661708",
     "OpenId": "",
     "SaleNo": "",
     "VipId": 0,
@@ -19,15 +19,16 @@ import re
 # OldVipId 查询掩码会员信息
 # VipId 和 OldVipId 同时有值, 会生成 `crm_vip_info_bindold`: VipId=1 AND OldVipId=2
 ## 没有值的参数不会生成相关的sql
-## DataOrigin: 23-抖音, 11-京东
+## DataOrigin: 23-抖音, 11-京东, 60-京东虚拟单
+## ThirdPartyId: 1-京东, 10-抖音
 '''
 PARAMS_JSON = """
 {
-    "BrandId": 6887,
+    "BrandId": 7135,
     "MobileNo": "",
     "OpenId": "",
     "SaleNo": "",
-    "VipId": 1808743,
+    "VipId": 1470467,
     "OldVipId": 0,
     "OldCode": "",
     "DataOrigin": 0
@@ -84,6 +85,7 @@ BRAND_SHARD_CONFIG = {
         "crm_vip_info": 8,
         "crm_vip_info_bindold": 8,
         "crm_vip_info_consume": 8,
+        "crm_vip_info_grade_log": 8,
         "crm_vip_info_bonus": 16
     },
     6919: {
@@ -270,6 +272,11 @@ TABLE_CONFIG_JSON = """
         "Desc": ">> 抖音订单",
         "Table": "mall_sales_oth_order",
         "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND DataOrigin={DataOrigin} AND Code='{SaleNo}'"
+    },
+    {
+        "Desc": ">> 京东虚拟单",
+        "Table": "crm_jd_order_total_temp",
+        "Sql": "SELECT * FROM {Table}{Count} WHERE BrandId={BrandId} AND CdpId=''"
     }
 ]
 """

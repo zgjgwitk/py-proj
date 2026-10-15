@@ -24,11 +24,15 @@ from urllib.error import HTTPError, URLError
 
 ## sql: SELECT * FROM `ed_base_brand_jd_vip_cfg` where BrandId=7135
 
-## 6887-bluebox
+DEFAULT_ACCOUNT = "1753064_jd"
+
+## 6887-山下有松
 DEFAULT_APP_KEY = "7EBBCACF814CADB4E1D665AAE8DA216B"
 DEFAULT_APP_SECRET = "EC2AF45ED9050DA2DCF5B9302910C971"
 DEFAULT_BRAND_ID = "100000000012524"
-DEFAULT_ACCOUNT = "71535_dbjd"
+# 简短别名，便于其他脚本直接引用
+APP_KEY = DEFAULT_APP_KEY
+APP_SECRET = DEFAULT_APP_SECRET
 DEFAULT_TOKEN = "BC8FAC87ADC715B0BD48FAB6A9580EED" # 联调用
 
 ## 6959-比音勒芬
@@ -126,15 +130,24 @@ def query_member_point(
         headers=headers,
         method="POST",
     )
-    LOGGER.info("请求京东会员通积分接口，account=%s，url=%s，ruid=%s", request_data.account, url, ruid)
+    # 记录请求头与请求体；auth 脱敏，避免日志泄漏密钥
+    safe_headers = {
+        k: ("******" if k.lower() in ("auth", "authorization") else v)
+        for k, v in headers.items()
+    }
+    print("请求头:", json.dumps(safe_headers, ensure_ascii=False))
+    print("请求体:", body.decode("utf-8"))
     try:
         with urlopen(http_request, timeout=timeout_seconds) as response:
             response_body = response.read().decode("utf-8")
             status_code = response.status
+            response_headers = dict(response.headers.items())
     except HTTPError as exc:
         error_body = exc.read().decode("utf-8", errors="replace")
+        print(f"请求异常，HTTP {exc.code}，响应体: {error_body}")
         raise RuntimeError(f"京东接口 HTTP {exc.code}: {error_body}") from exc
     except URLError as exc:
+        print(f"请求网络异常，错误: {exc.reason}")
         raise RuntimeError(f"京东接口网络请求失败: {exc.reason}") from exc
 
     try:
@@ -143,7 +156,8 @@ def query_member_point(
         raise RuntimeError(f"京东接口返回非 JSON（HTTP {status_code}）: {response_body[:500]}") from exc
     if not isinstance(result, dict):
         raise RuntimeError("京东接口返回 JSON 顶层结构不是对象")
-    LOGGER.info("京东接口响应完成，HTTP %s，code=%s", status_code, result.get("code"))
+    print("响应体:", response_body)
+    print(f"京东接口响应完成，HTTP {status_code}，code={result.get('code')}")
     return result
 
 

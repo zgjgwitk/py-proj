@@ -1,0 +1,670 @@
+{
+  "target_order_id": "6955724527512786156",
+  "brand_id": 7135,
+  "found_at": "2026-09-21T21:43:38.098518+08:00",
+  "window_start": "2026-09-21T00:00:00+08:00",
+  "window_end": "2026-09-21T23:59:59+08:00",
+  "page": 4,
+  "request_params": {
+    "update_time_start": 1789920000,
+    "update_time_end": 1790006399,
+    "size": 50,
+    "page": 4,
+    "b_type": 2,
+    "combine_status": [
+      {
+        "order_status": "5"
+      }
+    ]
+  },
+  "matched_order": {
+    "recommend_end_ship_time": 0,
+    "shop_name": "蓝盒子官方旗舰店",
+    "earliest_receipt_time": 0,
+    "sub_b_type": 3,
+    "promotion_redpack_amount": 0,
+    "order_tag": {},
+    "encrypt_post_receiver": "##YQukXysb5nVJrtE8yMCuwb+q0E0OIFHCAjqbKl5IMOvtZn3dYyoezWEuYrr5QHTgCLixwQnqY1onsMbG6JO2fJsvjfryXnL4HOm06CWgyQvViChQJEAsyFVQ0GzReNwp9CxXOmnCqU3EN3Zhwe4jIm+h7pCTmZBDKcAEONUJvcoW7R/8AeL7*CgYIASAHKAESPgo86hs4PGNMxhn5aGWJJQ3rcYeBtnu1IsSR1UzQIstFZHeSxCLQxiLsRMHjUzO65EcVtfg0AjawCHSlxF7PGgA=#2##",
+    "channel_payment_no": "2105012609060503559674235324",
+    "post_receiver": "",
+    "user_icon": "",
+    "recommend_logistics_list": [],
+    "tax_amount": 0,
+    "main_status_desc": "收货后退款完成",
+    "bmp_seller_type": "xiaodian",
+    "pay_amount": 42840,
+    "order_status_desc": "已完成",
+    "buyer_words": "",
+    "bmp_vertical_market": "",
+    "author_cost_amount": 0,
+    "order_type_desc": "普通订单",
+    "receipt_date": "",
+    "actual_receive_amount_info": {
+      "actual_receive_amount_details": [
+        {
+          "amount": 42840,
+          "type": 1
+        },
+        {
+          "amount": 2494,
+          "type": 4
+        }
+      ],
+      "actual_receive_amount": 45334
+    },
+    "trade_type": 0,
+    "latest_receipt_time": 0,
+    "cancel_reason": "",
+    "shop_id": 36205089,
+    "finish_time": 1789455180,
+    "serial_number_list": [
+      "107122100910519=GY064922"
+    ],
+    "promotion_detail": {
+      "shop_discount_detail": {
+        "coupon_info": [],
+        "full_discount_info": [],
+        "redpack_info": []
+      },
+      "platform_discount_detail": {
+        "full_discount_info": [
+          {
+            "extra_map": {
+              "business_tag": "DistrictGovernmentSubsidy",
+              "tool_code": "government_resale_subsidy"
+            }
+          }
+        ],
+        "redpack_info": [],
+        "coupon_info": [
+          {
+            "extra_map": {
+              "tool_code": "platform_coupon"
+            }
+          }
+        ]
+      },
+      "kol_discount_detail": {
+        "coupon_info": [],
+        "full_discount_info": [],
+        "redpack_info": []
+      }
+    },
+    "promotion_shop_amount": 0,
+    "packing_amount": 0,
+    "order_operate_record_list": [],
+    "modify_post_amount": 0,
+    "early_arrival": false,
+    "sub_b_type_desc": "H5",
+    "shop_order_tag_ui": [],
+    "greet_words": "",
+    "order_type": 0,
+    "target_arrival_time": 0,
+    "original_shop_id": 0,
+    "promotion_redpack_talent_amount": 0,
+    "post_origin_amount": 0,
+    "address_tag_ui": [],
+    "promotion_pay_amount": 0,
+    "platform_cost_amount": 0,
+    "pay_tel": "",
+    "biz": 2,
+    "promotion_platform_amount": 9060,
+    "user_tag_ui": [
+      {
+        "text": "高频购买",
+        "key": "user_profile_buy_frequency"
+      },
+      {
+        "key": "user_profile_shop_customer_type",
+        "text": "店铺老客"
+      }
+    ],
+    "mask_post_receiver": "陈*",
+    "pay_type": 4,
+    "post_addr": {
+      "city": {
+        "name": "厦门市",
+        "id": "350200"
+      },
+      "town": {
+        "name": "湖里区",
+        "id": "350206"
+      },
+      "street": {
+        "name": "禾山街道",
+        "id": "350206003"
+      },
+      "detail": "",
+      "encrypt_detail": "##OUK9Z3atXqqp6D93L1YhnI1pDTeFrgp4ia6yvQqrT3JBdqTXsRj2C8R4jqCOh2hvb5/Hwzx+ZqZINuoEKAyU93dub8f6IBU8bRSdguNGl4aX64a3rvsEstOnpmg2/bbBqJJikz9dqUjZ4h+a0nTegUW+k+84DIkvzJ/LNHMjQ0uLGfFWUlah*CgYIASAHKAESPgo8b2Fxum2oFUld/bKo6SCloj7lAKIIoNWLDp+BwyWtj5r+jTrSCMjSRA3CLon9CLxKzgdZ6qnJj42bxN+xGgA=#2##",
+      "province": {
+        "name": "福建省",
+        "id": "35"
+      }
+    },
+    "exp_ship_time": 1788875837,
+    "make_up_post_amount": 0,
+    "order_id": "6955724527512786156",
+    "order_phase_list": [],
+    "d_car_shop_biz_data": {
+      "poi_tel": null,
+      "poi_pname": null,
+      "poi_city_name": null,
+      "poi_adname": null,
+      "poi_id": null,
+      "poi_name": null,
+      "poi_addr": null
+    },
+    "promise_info": "{\"identifier\":\"S#2026-09-08\"}",
+    "biz_desc": "小店",
+    "aweme_id": "",
+    "order_amount": 51900,
+    "user_coordinate": {
+      "user_coordinate_latitude": "24.522686",
+      "user_coordinate_longitude": "118.139267"
+    },
+    "open_address_id": "#oU4XGTNYmAIKnl52Codo/QQz3D5v201XgWh6NeO7F9wQOx/GHahDMPpaOCy9fo9qdLB2b6eJQv47MvsZP7jar5KKbZMf8nAqE2hz3Yzta11fL0LssXVEh3WIkMGjpea4iLMZ1i/E6V8=",
+    "order_level": 2,
+    "order_expire_time": 1800,
+    "app_id": 1128,
+    "sku_order_list": [
+      {
+        "gov_subsidy_detail": {
+          "supplier_shop_id": "206436301",
+          "supplier_shop_name": "上海遥丰信息科技有限公司",
+          "product_tag": "government_subsidy_multis"
+        },
+        "bmp_seller_type": "xiaodian",
+        "author_id": 63490368076,
+        "packing_charge_amount": 0,
+        "relation_sku_order_ids": [],
+        "order_type_desc": "普通订单",
+        "mask_post_receiver": "陈*",
+        "page_id": 0,
+        "ship_time": 1788850380,
+        "is_comment": 0,
+        "reduce_stock_type": 1,
+        "trade_type_desc": "普通",
+        "card_voucher": {
+          "valid_days": 0,
+          "valid_start": 0,
+          "valid_end": 0
+        },
+        "biz": 2,
+        "appointment_ship_time": 0,
+        "sku_id": 3691756353127170,
+        "after_sale_info": {
+          "refund_status": 3,
+          "after_sale_status": 12,
+          "after_sale_type": 0
+        },
+        "receive_type": 0,
+        "promotion_talent_amount": 0,
+        "logistics_receipt_time": 1788952337,
+        "reduce_stock_type_desc": "下单减库存",
+        "pre_sale_type": 2,
+        "sub_b_type": 3,
+        "inventory_list": [
+          {
+            "warehouse_type": 0,
+            "warehouse_id": "",
+            "out_warehouse_id": "",
+            "inventory_type_desc": "普通库存",
+            "inventory_type": 1,
+            "count": 1
+          }
+        ],
+        "channel_payment_no": "2105012609060503559674235324",
+        "master_sku_order_id": "",
+        "sp_product_id": "",
+        "encrypt_post_receiver": "##kIKhgXR2Keb7wHOTUpmrINsGGMX1S+8dBqycx3/snTzwF/oz3HHvnH7zUvSyD9fNB6TjeRmo/ZrcO2KXsEVLPdx5vxbNfloB3YIros0uouW9eLJdUMPxDhEfTtsB+IekmLiHzOclebcaJHhxTlifTzW1wpVFqwN7uQjTJAsnkVwEG5ewGk33*CgYIASAHKAESPgo8DZFISIfyH0DdcJFcmEEb6olr5wzWGvr1RIfjYrOb8x3vRsCKkea1vANL9yeZ2QrSOP7n9o+BsF3UkFZUGgA=#2##",
+        "author_cost_amount": 0,
+        "order_status_desc": "已完成",
+        "send_pay_desc": "-",
+        "voucher_deduction_amount": 0,
+        "post_receiver": "",
+        "order_expire_time": 1800,
+        "room_id_str": "7682396413090925338",
+        "modify_post_amount": 0,
+        "update_time": 1789991865,
+        "main_status_desc": "收货后退款完成",
+        "code": "107122100910519",
+        "modify_amount": 0,
+        "need_serial_number": false,
+        "second_cid": 1000004479,
+        "post_tel": "",
+        "custom_properties": [],
+        "promise_info": "{\"identifier\":\"S#2026-09-08\"}",
+        "promotion_pay_amount_details": [],
+        "order_type": 0,
+        "trade_type": 0,
+        "promotion_redpack_talent_amount": 0,
+        "product_channel_info": {
+          "product_channel_id": "3707291500973826",
+          "product_channel_type": 4
+        },
+        "theme_type": "1",
+        "promotion_shop_amount": 0,
+        "product_id_str": "3828696517686984829",
+        "first_cid": 1000004471,
+        "out_product_id": "",
+        "given_product_type": "",
+        "confirm_receipt_time": 1789455180,
+        "has_tax": false,
+        "product_pic": "https://p9-aio.ecombdimg.com/obj/ecom-shop-material/jpeg_m_8532358babe77dad7bfd42e2c4b12fba_sx_193494_www800-800",
+        "sum_amount": 51900,
+        "tax_amount": 0,
+        "promotion_pay_amount": 0,
+        "supplier_id": "",
+        "master_sku_order_id_list": [],
+        "mask_post_addr": {
+          "province": {
+            "name": "福建省",
+            "id": "35"
+          },
+          "city": {
+            "name": "厦门市",
+            "id": "350200"
+          },
+          "town": {
+            "id": "350206",
+            "name": "湖里区"
+          },
+          "street": {
+            "name": "禾山街道",
+            "id": "350206003"
+          },
+          "detail": "**********************"
+        },
+        "create_time": 1788703033,
+        "app_id": 1128,
+        "promotion_amount": 9060,
+        "c_biz": 2,
+        "mask_post_tel": "1**********",
+        "extra_info": {
+          "barcodes": "[\"6977859946602\"]",
+          "sku_feature": "{\"sku_lock_tag\":\"[\\\"productlock_61383754\\\"]\"}",
+          "spec_model_code": "[\"小蓝垫\"]",
+          "ThirdCidName": "记忆棉床垫",
+          "cb_wares_info": "{\"wares_id\":\"\",\"record_id\":\"\"}"
+        },
+        "third_cid": 1000004542,
+        "biz_desc": "小店",
+        "account_list": {},
+        "inventory_type": "",
+        "ad_env_type": "live",
+        "given_exp_ship_time_desc": "",
+        "sku_info": {
+          "commit_code": null
+        },
+        "b_type": 2,
+        "order_id": "6955724527512786156",
+        "warehouse_ids": [],
+        "pay_amount": 42840,
+        "bmp_source": "",
+        "cancel_reason": "",
+        "product_name": "【杨茗茗专属】蓝盒子【小蓝垫学生宿舍尺寸】记忆棉薄垫上下铺",
+        "out_warehouse_ids": [],
+        "encrypt_post_tel": "$$Tpa4ouRZRiB+GULvOwgKQ8o+7mJ7oXspF0BP1W5MFDqVq3Nf6qzwsS/1cZ/Ja5LxJvRdJoEaqvoSH33rQ1DM62qC3Q9yU7yiIWVzGYr/mmqybIGoa0VPNXzZFxYuCOkWjyU1OFV3DZSnxyq5UomTE/VatIwFA00ownpYvIz/Pc6eO2ZCNrEt*CgYIASAHKAESPgo8jqBr8KKi+DlL+XVavD/f64VZRbtmNkFo1rhdAM+5zRx5+qfdWWbdzS0riPHIFJDLJB96IOicZIg5Bf2UGgA=$2$$",
+        "post_amount": 0,
+        "promotion_redpack_amount": 0,
+        "quality_inspection_status": 0,
+        "video_id": "",
+        "origin_id": "63490368076_7682396413090925338_3830386602199351660",
+        "send_pay": 0,
+        "only_platform_cost_amount": 0,
+        "item_num": 1,
+        "order_status": 5,
+        "theme_type_desc": "直播间",
+        "shell_order_info": {
+          "supplier_shop_id": "206436301",
+          "supplier_shop_name": "上海遥丰信息科技有限公司"
+        },
+        "fourth_cid": 0,
+        "parent_order_id": "6955724527512786156",
+        "order_level": 3,
+        "room_id": 7682396413090925338,
+        "order_amount": 51900,
+        "inventory_type_desc": "",
+        "cid": 1875586495636808,
+        "shop_cost_amount": 6566,
+        "platform_cost_amount": 0,
+        "pay_time": 1788703037,
+        "promotion_redpack_platform_amount": 0,
+        "origin_amount": 51900,
+        "promotion_detail": {
+          "shop_discount_detail": {
+            "coupon_info": [],
+            "full_discount_info": [],
+            "redpack_info": []
+          },
+          "platform_discount_detail": {
+            "coupon_info": [
+              {
+                "extra_map": {
+                  "tool_code": "platform_coupon"
+                }
+              }
+            ],
+            "full_discount_info": [
+              {
+                "extra_map": {
+                  "tool_code": "government_resale_subsidy",
+                  "business_tag": "DistrictGovernmentSubsidy"
+                }
+              }
+            ],
+            "redpack_info": []
+          },
+          "kol_discount_detail": {
+            "coupon_info": [],
+            "full_discount_info": [],
+            "redpack_info": []
+          }
+        },
+        "goods_price": 51900,
+        "given_exp_ship_time": 0,
+        "out_sku_id": "",
+        "source_platform": "",
+        "sku_cargo_future_stock": {
+          "supply_sku_snapshots": [
+            {
+              "inventory_type": 0,
+              "batch_detail": [
+                {
+                  "arrive_time_type": 0,
+                  "arrive_time": 0,
+                  "stock_num": 1,
+                  "batch_id": 0,
+                  "inventory_type": 0
+                }
+              ]
+            }
+          ]
+        },
+        "main_status": 39,
+        "promotion_platform_amount": 9060,
+        "exp_ship_time": 1788875837,
+        "bundle_sku_info": [],
+        "bmp_vertical_market": "",
+        "goods_type": 0,
+        "author_name": "杨茗茗",
+        "c_biz_desc": "精选联盟",
+        "sku_order_tag_ui": [
+          {
+            "help_doc": "https://school.jinritemai.com/doudian/web/article/aHzVDSeo3a9Z",
+            "extra": "",
+            "sort": 0,
+            "key": "home_installation",
+            "text": "服务商安装",
+            "hover_text": "由抖音合作的服务商提供安装服务，服务商会在物流签收后24小时内与消费者主动预约并按约上门",
+            "tag_type": ""
+          },
+          {
+            "tag_type": "",
+            "help_doc": "",
+            "extra": "",
+            "sort": 0,
+            "key": "kol_exclusive_product",
+            "text": "专属达人渠道",
+            "hover_text": ""
+          },
+          {
+            "text": "顺丰配送",
+            "hover_text": "商家在优质快递服务配置商品和收货地后会对消费者按配置表达“顺丰配送/顺丰包邮”，顺丰配送的订单商家需使用顺丰取号并发货",
+            "tag_type": "",
+            "help_doc": "",
+            "extra": "{\"express_company_code\":\"shunfeng\"}",
+            "sort": 0,
+            "key": "high_quality_express"
+          },
+          {
+            "tag_type": "",
+            "help_doc": "https://school.jinritemai.com/doudian/web/article/101835?from=shop_article",
+            "extra": "",
+            "sort": 0,
+            "key": "supply_7day_return_label",
+            "text": "7天",
+            "hover_text": ""
+          },
+          {
+            "tag_type": "",
+            "help_doc": "https://school.jinritemai.com/doudian/web/article/101792?from=shop_article",
+            "extra": "",
+            "sort": 0,
+            "key": "quick_refund_label",
+            "text": "极速退",
+            "hover_text": ""
+          },
+          {
+            "hover_text": "公益项目:壹基金海洋天堂计划",
+            "tag_type": "",
+            "help_doc": "https://school.jinritemai.com/doudian/web/article/aHLoSmgKuDYs?from=shop_article",
+            "extra": "",
+            "sort": 0,
+            "key": "charity_good",
+            "text": "爱心好物"
+          },
+          {
+            "tag_type": "grey",
+            "help_doc": "",
+            "extra": "",
+            "sort": 0,
+            "key": "c_biz_alliance",
+            "text": "精选联盟",
+            "hover_text": "账号的经营身份为电商带货达人、混合经营达人时，通过「选品广场」或粘贴链接的方式，将商品添加到橱窗、视频或直播间进行售卖，由此产生的订单属于精选联盟订单${c_biz_alliance_rule}"
+          },
+          {
+            "key": "gov_subsidy",
+            "text": "国家补贴",
+            "hover_text": "",
+            "tag_type": "",
+            "help_doc": "",
+            "extra": "",
+            "sort": 0
+          },
+          {
+            "text": "政府消费券",
+            "hover_text": "",
+            "tag_type": "",
+            "help_doc": "",
+            "extra": "",
+            "sort": 0,
+            "key": "district_gov_subsidy"
+          },
+          {
+            "help_doc": "",
+            "extra": "",
+            "sort": 0,
+            "key": "sku_light_self_operation",
+            "text": "平台自营",
+            "hover_text": "本订单为平台自营订单，由平台自营公司作为实际销售主体，履行销售者义务",
+            "tag_type": ""
+          },
+          {
+            "sort": 0,
+            "key": "gov_subsidy_platform_own",
+            "text": "平台订单",
+            "hover_text": "本订单由平台销售公司作为实际销售主体，履行销售者义务",
+            "tag_type": "",
+            "help_doc": "",
+            "extra": ""
+          },
+          {
+            "extra": "",
+            "sort": 0,
+            "key": "compass_source_not_ad_mark",
+            "text": "非广告",
+            "hover_text": "该订单通过自然流量成交",
+            "tag_type": "grey",
+            "help_doc": ""
+          },
+          {
+            "tag_type": "grey",
+            "help_doc": "",
+            "extra": "{\"compass_first_level_entrance\":\"douyin_shopping_center\",\"compass_first_level_entrance_text\":\"商城推荐\"}",
+            "sort": 0,
+            "key": "compass_source_content_type_live",
+            "text": "直播",
+            "hover_text": "该订单通过直播方式成交，2023/3/1起创建的订单，将于第二天更新。更多流量来源请在订单导出明细查看"
+          }
+        ],
+        "actual_receive_amount_info": {
+          "actual_receive_amount": 45334,
+          "actual_receive_amount_details": [
+            {
+              "amount": 42840,
+              "type": 1
+            },
+            {
+              "amount": 2494,
+              "type": 4
+            }
+          ]
+        },
+        "pay_type": 4,
+        "post_insurance_amount": 0,
+        "spec": [
+          {
+            "name": "颜色分类",
+            "value": "小蓝垫（蓝）"
+          },
+          {
+            "name": "尺码",
+            "value": "90cm*190cm"
+          }
+        ],
+        "sku_customization_info": [],
+        "finish_time": 1789455180,
+        "sub_b_type_desc": "H5",
+        "post_addr": {
+          "province": {
+            "name": "福建省",
+            "id": "35"
+          },
+          "city": {
+            "name": "厦门市",
+            "id": "350200"
+          },
+          "town": {
+            "name": "湖里区",
+            "id": "350206"
+          },
+          "street": {
+            "name": "禾山街道",
+            "id": "350206003"
+          },
+          "detail": "",
+          "encrypt_detail": "##04L3+JVHF76K0cO4aTruXGHY+r5NbCTpfZXhaX/2pk1asti2zZZoGzPY8cxiOqS/u4mFC/GAH6ATlO29dZazw7LhC/mDhOo95tbVdQbZ2gHvcPcCRzZzfYnGixqGKMzLTO0sMbEuiXlBN5wYML0JIfsZHBFjoiZjQx77pKN0iGxI+V6dnkEG*CgYIASAHKAESPgo83iSsHqyrS53lKJRPmGs7q4ullxPxd2OzfsTthNx7b7jJ9io+R729Zuy9Kz2AIdQYYbuCG2bNinHxwBPfGgA=#2##"
+        },
+        "product_id": 3828696517686984829,
+        "b_type_desc": "抖音",
+        "content_id": "0"
+      }
+    ],
+    "post_promotion_amount": 0,
+    "seller_words": "无理由，退，包装袋，已登表【噜噜 9/12】  包装S已工单【舟舟 09-13 10:05】;补发(8329018)#取件已工单【小U 09-20 10:59】;(收)[107122100910519]*[1] (收)[127154000905310]*[1]# 【媛媛 9/21】",
+    "pay_time": 1788703037,
+    "post_insurance_amount": 0,
+    "promotion_amount": 9060,
+    "post_tel": "",
+    "encrypt_pay_tel": "",
+    "update_time": 1789991865,
+    "modify_amount": 0,
+    "shop_cost_amount": 6566,
+    "encrypt_post_tel": "$$rMK/Wuk4BpmkBdxPxbOYiYROVm32yBsE35uZ5h8wj6YfJf5BIj8O+9ay5FloJ0OvBemHdPh8TkfGs+NArDfEi4KzFntD6hE6L2mu04CoWCPvkOmCqQaAyg6I6ui1JF0dmMGw0K7B3oAUr9pFLt9ybj1i9GOABThOGJE6+IGK8qZCigdf+Kf4*CgYIASAHKAESPgo8+j579rxIW+LK64sIduul9d01NQz6tdG3he91WONbga303mpry2hScWKwoIUqtsYytd8qSxH+EzCA5SsfGgA=$2$$",
+    "accept_order_status": 0,
+    "trade_type_desc": "普通",
+    "fulfill_status": "SIGNED",
+    "mask_post_tel": "1**********",
+    "order_status": 5,
+    "seller_remark_stars": 1,
+    "doudian_open_id": "1@#7O+PzrSoLsVbtgMQ4L/7wX6T3/ml8Ji6g9EAHx6MuAv9uG/WdJVBNZXmUkodIgiaYyabC/CXTA==",
+    "recommend_start_ship_time": 0,
+    "total_promotion_amount": 9060,
+    "promotion_talent_amount": 0,
+    "appointment_ship_time": 0,
+    "mask_post_addr": {
+      "street": {
+        "name": "禾山街道",
+        "id": "350206003"
+      },
+      "detail": "**********************",
+      "province": {
+        "name": "福建省",
+        "id": "35"
+      },
+      "city": {
+        "id": "350200",
+        "name": "厦门市"
+      },
+      "town": {
+        "name": "湖里区",
+        "id": "350206"
+      }
+    },
+    "b_type": 2,
+    "promotion_redpack_platform_amount": 0,
+    "ship_time": 1788850380,
+    "bmp_source": "",
+    "promise_detail": {
+      "promise_type": 1,
+      "promise_time_detail": {
+        "promise_exp_ship_time": 1788875837,
+        "promise_latest_receipt_time": 0,
+        "promise_appointment_ship_time": 0,
+        "promise_recommend_start_ship_time": 0,
+        "promise_recommend_end_ship_time": 0
+      },
+      "recommend_logistics_list": []
+    },
+    "main_status": 39,
+    "user_nick_name": "",
+    "create_time": 1788703033,
+    "open_id": "",
+    "b_type_desc": "抖音",
+    "relation_shop_order_ids": [],
+    "post_amount": 0,
+    "urge_deliver_Times": 0,
+    "supermarket_order_serial_no": "",
+    "mask_pay_tel": "",
+    "receipt_time_map": {},
+    "only_platform_cost_amount": 0,
+    "logistics_info": [
+      {
+        "delivery_id": "147655407549174666",
+        "company_name": "顺丰速运",
+        "product_info": [
+          {
+            "sku_id": 3691756353127170,
+            "product_id": 3828696517686984829,
+            "product_id_str": "3828696517686984829",
+            "product_name": "【杨茗茗专属】蓝盒子【小蓝垫学生宿舍尺寸】记忆棉薄垫上下铺",
+            "outer_sku_id": "",
+            "price": 51900,
+            "product_count": 1,
+            "sku_specs": [
+              {
+                "name": "颜色分类",
+                "value": "小蓝垫（蓝）"
+              },
+              {
+                "name": "尺码",
+                "value": "90cm*190cm"
+              }
+            ],
+            "sku_order_id": "6955724527512786156"
+          }
+        ],
+        "hour_up_pickup_code": "",
+        "transit_merge_type": "",
+        "guarantee_amount": 0,
+        "sp_discount_price": 0,
+        "sp_price": 0,
+        "sp_total_price": 0,
+        "tracking_no": "SF5158725846097",
+        "company": "shunfeng",
+        "ship_time": 1788850380
+      }
+    ]
+  }
+}
